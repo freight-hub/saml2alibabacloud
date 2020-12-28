@@ -5,24 +5,24 @@ import (
 	"os"
 	"path"
 
+	saml2alibabacloud "github.com/aliyun/saml2alibabacloud"
+	"github.com/aliyun/saml2alibabacloud/helper/credentials"
+	"github.com/aliyun/saml2alibabacloud/pkg/cfg"
+	"github.com/aliyun/saml2alibabacloud/pkg/flags"
+	"github.com/aliyun/saml2alibabacloud/pkg/prompter"
+	"github.com/aliyun/saml2alibabacloud/pkg/provider/onelogin"
 	"github.com/pkg/errors"
-	"github.com/versent/saml2aws/v2"
-	"github.com/versent/saml2aws/v2/helper/credentials"
-	"github.com/versent/saml2aws/v2/pkg/cfg"
-	"github.com/versent/saml2aws/v2/pkg/flags"
-	"github.com/versent/saml2aws/v2/pkg/prompter"
-	"github.com/versent/saml2aws/v2/pkg/provider/onelogin"
 )
 
 // OneLoginOAuthPath is the path used to generate OAuth token in order to access OneLogin's API.
 const OneLoginOAuthPath = "/auth/oauth2/v2/token"
 
-// Configure configure account profiles
+// Configure account profiles
 func Configure(configFlags *flags.CommonFlags) error {
 
 	idpAccountName := configFlags.IdpAccount
 
-	// pass in alternative location of saml2aws config file, if set.
+	// pass in alternative location of saml2alibabacloud config file, if set.
 	cfgm, err := cfg.NewConfigManager(configFlags.ConfigFile)
 	if err != nil {
 		return errors.Wrap(err, "failed to load configuration")
@@ -38,7 +38,7 @@ func Configure(configFlags *flags.CommonFlags) error {
 
 	// do we need to prompt for values now?
 	if !configFlags.SkipPrompt {
-		err = saml2aws.PromptForConfigurationDetails(account)
+		err = saml2alibabacloud.PromptForConfigurationDetails(account)
 		if err != nil {
 			return errors.Wrap(err, "failed to input configuration")
 		}

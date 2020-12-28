@@ -40,13 +40,13 @@
 				evan.mclean@example.com.au
 			</NameID>
 			<SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
-				<SubjectConfirmationData Recipient="https://signin.aws.amazon.com/saml" NotOnOrAfter="2016-09-23T23:34:25.315Z" />
+				<SubjectConfirmationData Recipient="https://signin.aliyun.com/saml-role/sso" NotOnOrAfter="2016-09-23T23:34:25.315Z" />
 			</SubjectConfirmation>
 		</Subject>
 		<Conditions NotBefore="2016-09-23T23:24:25.315Z" NotOnOrAfter="2016-09-23T23:34:25.315Z">
 			<AudienceRestriction>
 				<Audience>
-					urn:amazon:webservices
+					urn:alibaba:cloudcomputing
 				</Audience>
 			</AudienceRestriction>
 		</Conditions>
@@ -63,7 +63,7 @@
 					Evan McLean
 				</AttributeValue>
 			</Attribute>
-			<Attribute Name="https://aws.amazon.com/SAML/Attributes/RoleSessionName" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+			<Attribute Name="https://www.aliyun.com/SAML-Role/Attributes/RoleSessionName" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
 				<AttributeValue xsi:type="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 					evan.mclean
 				</AttributeValue>
@@ -88,21 +88,21 @@
 					evan.mclean@example.com.au
 				</AttributeValue>
 			</Attribute>
-			<Attribute Name="https://aws.amazon.com/SAML/Attributes/Role" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+			<Attribute Name="https://www.aliyun.com/SAML-Role/Attributes/Role" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
 				<AttributeValue xsi:type="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-					arn:aws:iam::456456456456:role/admin,arn:aws:iam::456456456456:saml-provider/example-idp
+					acs:ram::456456456456:role/admin,acs:ram::456456456456:saml-provider/example-idp
 				</AttributeValue>
 				<AttributeValue xsi:type="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-					arn:aws:iam::456456456456:role/developer,arn:aws:iam::456456456456:saml-provider/example-idp
+					acs:ram::456456456456:role/developer,acs:ram::456456456456:saml-provider/example-idp
 				</AttributeValue>
 				<AttributeValue xsi:type="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-					arn:aws:iam::789789789789:role/admin,arn:aws:iam::789789789789:saml-provider/example-idp
+					acs:ram::789789789789:role/admin,acs:ram::789789789789:saml-provider/example-idp
 				</AttributeValue>
 				<AttributeValue xsi:type="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-					arn:aws:iam::123123123123:role/developer,arn:aws:iam::123123123123:saml-provider/example-idp
+					acs:ram::123123123123:role/developer,acs:ram::123123123123:saml-provider/example-idp
 				</AttributeValue>
 				<AttributeValue xsi:type="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-					arn:aws:iam::123123123123:role/admin,arn:aws:iam::123123123123:saml-provider/example-idp
+					acs:ram::123123123123:role/admin,acs:ram::123123123123:saml-provider/example-idp
 				</AttributeValue>
 			</Attribute>
 		</AttributeStatement>

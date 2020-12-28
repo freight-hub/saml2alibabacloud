@@ -1,4 +1,4 @@
-package saml2aws
+package saml2alibabacloud
 
 import (
 	"io/ioutil"
@@ -7,11 +7,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestExtractAwsRoles(t *testing.T) {
+func TestExtractRamRoles(t *testing.T) {
 	data, err := ioutil.ReadFile("testdata/assertion.xml")
 	assert.Nil(t, err)
 
-	roles, err := ExtractAwsRoles(data)
+	roles, err := ExtractRamRoles(data)
 	assert.Nil(t, err)
 	assert.Len(t, roles, 2)
 }
@@ -31,7 +31,7 @@ func TestExtractDestinationURL(t *testing.T) {
 
 	destination, err := ExtractDestinationURL(data)
 	assert.Nil(t, err)
-	assert.Equal(t, "https://signin.aws.amazon.com/saml", destination)
+	assert.Equal(t, "https://signin.aliyun.com/saml-role/sso", destination)
 }
 
 func TestExtractDestinationURL2(t *testing.T) {
@@ -40,5 +40,5 @@ func TestExtractDestinationURL2(t *testing.T) {
 
 	destination, err := ExtractDestinationURL(data)
 	assert.Nil(t, err)
-	assert.Equal(t, "https://signin.aws.amazon.com/saml", destination)
+	assert.Equal(t, "https://signin.aliyun.com/saml-role/sso", destination)
 }

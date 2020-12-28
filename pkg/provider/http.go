@@ -10,16 +10,16 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/aliyun/saml2alibabacloud/pkg/cfg"
+	"github.com/aliyun/saml2alibabacloud/pkg/cookiejar"
+	"github.com/aliyun/saml2alibabacloud/pkg/dump"
 	"github.com/avast/retry-go"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"github.com/versent/saml2aws/v2/pkg/cfg"
-	"github.com/versent/saml2aws/v2/pkg/cookiejar"
-	"github.com/versent/saml2aws/v2/pkg/dump"
 	"golang.org/x/net/publicsuffix"
 )
 
-// HTTPClient saml2aws http client which extends the existing client
+// HTTPClient saml2alibabacloud http client which extends the existing client
 type HTTPClient struct {
 	http.Client
 	CheckResponseStatus func(*http.Request, *http.Response) error
@@ -54,16 +54,17 @@ func NewDefaultTransport(skipVerify bool) *http.Transport {
 	}
 }
 
+// BuildHttpClientOpts build http client options such as attempts count and retry delay
 func BuildHttpClientOpts(account *cfg.IDPAccount) *HTTPClientOptions {
 	opts := &HTTPClientOptions{}
-	atmt, atmtErr := strconv.ParseUint(account.HttpAttemptsCount, 10, 0)
+	atmt, atmtErr := strconv.ParseUint(account.HTTPAttemptsCount, 10, 0)
 	if opts.IsWithRetries = atmtErr == nil; opts.IsWithRetries {
 		opts.AttemptsCount = uint(atmt)
 	} else {
 		opts.AttemptsCount = DefaultAttemptsCount
 	}
 
-	delay, delayErr := strconv.ParseUint(account.HttpRetryDelay, 10, 0)
+	delay, delayErr := strconv.ParseUint(account.HTTPRetryDelay, 10, 0)
 	if delayErr != nil {
 		opts.RetryDelay = DefaultRetryDelay
 	} else {
@@ -93,7 +94,7 @@ func NewHTTPClient(tr http.RoundTripper, opts *HTTPClientOptions) (*HTTPClient, 
 // Do do the request
 func (hc *HTTPClient) Do(req *http.Request) (*http.Response, error) {
 
-	req.Header.Set("User-Agent", fmt.Sprintf("saml2aws/1.0 (%s %s) Versent", runtime.GOOS, runtime.GOARCH))
+	req.Header.Set("User-Agent", fmt.Sprintf("saml2alibabacloud/1.0 (%s %s)", runtime.GOOS, runtime.GOARCH))
 
 	var resp *http.Response
 	var err error

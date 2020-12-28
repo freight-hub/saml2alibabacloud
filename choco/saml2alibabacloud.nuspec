@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>saml2alibabacloud</id>
+    <version>$version$</version>
+    <packageSourceUrl>https://github.com/aliyun/saml2alibabacloud</packageSourceUrl>
+    <!-- owners is a poor name for maintainers of the package. It sticks around by this name for compatibility reasons. It basically means you. -->
+    <owners>AlibabaCloud, https://github.com/aliyun</owners>
+    <title>saml2alibabacloud (Install)</title>
+    <authors>daxingplay, https://github.com/daxingplay</authors>
+    <projectUrl>https://github.com/aliyun/saml2alibabacloud</projectUrl>
+    <licenseUrl>https://github.com/aliyun/saml2alibabacloud/blob/master/LICENSE.md</licenseUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <projectSourceUrl>https://github.com/aliyun/saml2alibabacloud</projectSourceUrl>
+    <tags>saml2alibabacloud admin alibabacloud aliyun saml CLI</tags>
+    <summary>CLI tool which enables you to login and retrieve AlibabaCloud temporary credentials using a SAML IDP</summary>
+    <description>CLI tool which enables you to login and retrieve AlibabaCloud temporary credentials using a SAML IDP</description>
+  </metadata>
+  <files>
+    <!-- this section controls what actually gets packaged into the Chocolatey package -->
+    <file src="src\**" target="src" />
+    <!--Building from Linux? You may need this instead: <file src="tools/**" target="tools" />-->
+  </files>
+</package>

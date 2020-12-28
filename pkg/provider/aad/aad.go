@@ -14,11 +14,11 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/aliyun/saml2alibabacloud/pkg/cfg"
+	"github.com/aliyun/saml2alibabacloud/pkg/creds"
+	"github.com/aliyun/saml2alibabacloud/pkg/prompter"
+	"github.com/aliyun/saml2alibabacloud/pkg/provider"
 	"github.com/pkg/errors"
-	"github.com/versent/saml2aws/v2/pkg/cfg"
-	"github.com/versent/saml2aws/v2/pkg/creds"
-	"github.com/versent/saml2aws/v2/pkg/prompter"
-	"github.com/versent/saml2aws/v2/pkg/provider"
 )
 
 // Client wrapper around AzureAD enabling authentication and retrieval of assertions

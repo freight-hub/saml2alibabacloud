@@ -10,14 +10,14 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/aliyun/saml2alibabacloud/pkg/cfg"
+	"github.com/aliyun/saml2alibabacloud/pkg/creds"
+	"github.com/aliyun/saml2alibabacloud/pkg/page"
+	"github.com/aliyun/saml2alibabacloud/pkg/prompter"
+	"github.com/aliyun/saml2alibabacloud/pkg/provider"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
-	"github.com/versent/saml2aws/v2/pkg/cfg"
-	"github.com/versent/saml2aws/v2/pkg/creds"
-	"github.com/versent/saml2aws/v2/pkg/page"
-	"github.com/versent/saml2aws/v2/pkg/prompter"
-	"github.com/versent/saml2aws/v2/pkg/provider"
 )
 
 var logger = logrus.WithField("provider", "pingfed")
@@ -52,7 +52,7 @@ type ctxKey string
 
 // Authenticate Authenticate to PingFed and return the data from the body of the SAML assertion.
 func (ac *Client) Authenticate(loginDetails *creds.LoginDetails) (string, error) {
-	u := fmt.Sprintf("%s/idp/startSSO.ping?PartnerSpId=%s", loginDetails.URL, ac.idpAccount.AmazonWebservicesURN)
+	u := fmt.Sprintf("%s/idp/startSSO.ping?PartnerSpId=%s", loginDetails.URL, ac.idpAccount.AlibabaCloudURN)
 	req, err := http.NewRequest("GET", u, nil)
 	if err != nil {
 		return "", errors.Wrap(err, "error building request")
@@ -73,8 +73,8 @@ func (ac *Client) follow(ctx context.Context, req *http.Request) (string, error)
 
 	var handler func(context.Context, *goquery.Document) (context.Context, *http.Request, error)
 
-	if docIsFormRedirectToAWS(doc) {
-		logger.WithField("type", "saml-response-to-aws").Debug("doc detect")
+	if docIsFormRedirectToAlibabaCloud(doc) {
+		logger.WithField("type", "saml-response").Debug("doc detect")
 		if samlResponse, ok := extractSAMLResponse(doc); ok {
 			decodedSamlResponse, err := base64.StdEncoding.DecodeString(samlResponse)
 			if err != nil {
@@ -252,8 +252,8 @@ func docIsFormResume(doc *goquery.Document) bool {
 	return doc.Find("input[name=\"RelayState\"]").Size() == 1
 }
 
-func docIsFormRedirectToAWS(doc *goquery.Document) bool {
-	return doc.Find("form[action=\"https://signin.aws.amazon.com/saml\"]").Size() == 1
+func docIsFormRedirectToAlibabaCloud(doc *goquery.Document) bool {
+	return doc.Find("form[action=\"https://signin.aliyun.com/saml-role/sso\"]").Size() == 1
 }
 
 func extractSAMLResponse(doc *goquery.Document) (v string, ok bool) {

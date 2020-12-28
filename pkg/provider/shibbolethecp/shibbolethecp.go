@@ -12,14 +12,14 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/aliyun/saml2alibabacloud/pkg/cfg"
+	"github.com/aliyun/saml2alibabacloud/pkg/creds"
+	"github.com/aliyun/saml2alibabacloud/pkg/prompter"
+	"github.com/aliyun/saml2alibabacloud/pkg/provider"
 	"github.com/beevik/etree"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"github.com/versent/saml2aws/v2/pkg/cfg"
-	"github.com/versent/saml2aws/v2/pkg/creds"
-	"github.com/versent/saml2aws/v2/pkg/prompter"
-	"github.com/versent/saml2aws/v2/pkg/provider"
 )
 
 const SAML_SUCCESS = "urn:oasis:names:tc:SAML:2.0:status:Success"
@@ -83,7 +83,7 @@ func New(idpAccount *cfg.IDPAccount) (*Client, error) {
 // Authenticate authenticates to a Shibboleth ECP profile and return the data from the body of the SAML assertion.
 func (c *Client) Authenticate(loginDetails *creds.LoginDetails) (string, error) {
 	// Step 1: Request resource from IdP, indicate we are ECP capable
-	ar, err := authnRequest(c.idpAccount.AmazonWebservicesURN)
+	ar, err := authnRequest(c.idpAccount.AlibabaCloudURN)
 	if err != nil {
 		return "", err
 	}
@@ -131,7 +131,7 @@ func (c *Client) Authenticate(loginDetails *creds.LoginDetails) (string, error) 
 
 	logger.Debugf("SAML Assertion: %s", assertion)
 
-	// saml2aws expects the assertion to be base64 encoded
+	// saml2alibabacloud expects the assertion to be base64 encoded
 	return base64.StdEncoding.EncodeToString([]byte(assertion)), nil
 }
 
@@ -145,7 +145,7 @@ func authnRequest(entityID string) (io.Reader, error) {
 	ard := authnRequestData{
 		ID:                          uuid.New().String(),
 		IssueInstant:                time.Now().Format(time.RFC3339),
-		AssertionConsumerServiceURL: "https://signin.aws.amazon.com/saml",
+		AssertionConsumerServiceURL: "https://signin.aliyun.com/saml-role/sso",
 		EntityID:                    entityID,
 	}
 

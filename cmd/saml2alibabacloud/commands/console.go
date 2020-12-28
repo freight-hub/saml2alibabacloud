@@ -7,21 +7,20 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"time"
 
+	"github.com/aliyun/saml2alibabacloud/pkg/alibabacloudconfig"
+	"github.com/aliyun/saml2alibabacloud/pkg/cfg"
+	"github.com/aliyun/saml2alibabacloud/pkg/flags"
 	"github.com/pkg/errors"
 	"github.com/skratchdot/open-golang/open"
-	"github.com/versent/saml2aws/v2/pkg/awsconfig"
-	"github.com/versent/saml2aws/v2/pkg/cfg"
-	"github.com/versent/saml2aws/v2/pkg/flags"
 )
 
 const (
-	federationURL = "https://signin.aws.amazon.com/federation"
-	issuer        = "saml2aws"
+	federationURL = "https://signin.aliyun.com/federation"
+	issuer        = "saml2alibabacloud"
 )
 
-// Console open the aws console from the CLI
+// Console open the AlibabaCloud console from the CLI
 func Console(consoleFlags *flags.ConsoleFlags) error {
 
 	account, err := buildIdpAccount(consoleFlags.LoginExecFlags)
@@ -29,11 +28,11 @@ func Console(consoleFlags *flags.ConsoleFlags) error {
 		return errors.Wrap(err, "error building login details")
 	}
 
-	sharedCreds := awsconfig.NewSharedCredentials(account.Profile)
+	sharedCreds := alibabacloudconfig.NewSharedCredentials(account.Profile)
 
 	// this checks if the credentials file has been created yet
-	// can only really be triggered if saml2aws exec is run on a new
-	// system prior to creating $HOME/.aws
+	// can only really be triggered if saml2alibabacloud exec is run on a new
+	// system prior to creating $HOME/.aliyun
 	exist, err := sharedCreds.CredsExists()
 	if err != nil {
 		return errors.Wrap(err, "error loading credentials")
@@ -43,7 +42,7 @@ func Console(consoleFlags *flags.ConsoleFlags) error {
 		return nil
 	}
 
-	awsCreds, err := loadOrLogin(account, sharedCreds, consoleFlags)
+	alibabacloudCreds, err := loadOrLogin(account, sharedCreds, consoleFlags)
 	if err != nil {
 		return errors.Wrap(err,
 			fmt.Sprintf("error loading credentials for profile: %s", consoleFlags.LoginExecFlags.ExecProfile))
@@ -54,7 +53,7 @@ func Console(consoleFlags *flags.ConsoleFlags) error {
 
 	if consoleFlags.LoginExecFlags.ExecProfile != "" {
 		// Assume the desired role before generating env vars
-		awsCreds, err = assumeRoleWithProfile(consoleFlags.LoginExecFlags.ExecProfile, consoleFlags.LoginExecFlags.CommonFlags.SessionDuration)
+		alibabacloudCreds, err = assumeRoleWithProfile(alibabacloudCreds, consoleFlags.LoginExecFlags.ExecProfile, consoleFlags.LoginExecFlags.CommonFlags.SessionDuration)
 		if err != nil {
 			return errors.Wrap(err,
 				fmt.Sprintf("error acquiring credentials for profile: %s", consoleFlags.LoginExecFlags.ExecProfile))
@@ -62,10 +61,10 @@ func Console(consoleFlags *flags.ConsoleFlags) error {
 	}
 
 	log.Printf("Presenting credentials for %s to %s", account.Profile, federationURL)
-	return federatedLogin(awsCreds, consoleFlags)
+	return federatedLogin(alibabacloudCreds, consoleFlags)
 }
 
-func loadOrLogin(account *cfg.IDPAccount, sharedCreds *awsconfig.CredentialsProvider, execFlags *flags.ConsoleFlags) (*awsconfig.AWSCredentials, error) {
+func loadOrLogin(account *cfg.IDPAccount, sharedCreds *alibabacloudconfig.CredentialsProvider, execFlags *flags.ConsoleFlags) (*alibabacloudconfig.AliCloudCredentials, error) {
 
 	var err error
 
@@ -74,34 +73,29 @@ func loadOrLogin(account *cfg.IDPAccount, sharedCreds *awsconfig.CredentialsProv
 		return loginRefreshCredentials(sharedCreds, execFlags.LoginExecFlags)
 	}
 
-	awsCreds, err := sharedCreds.Load()
+	alibabacloudCreds, err := sharedCreds.Load()
 	if err != nil {
-		if err != awsconfig.ErrCredentialsNotFound {
+		if err != alibabacloudconfig.ErrCredentialsNotFound {
 			return nil, errors.Wrap(err, "failed to load credentials")
 		}
 		log.Println("credentials not found triggering login")
 		return loginRefreshCredentials(sharedCreds, execFlags.LoginExecFlags)
 	}
 
-	if awsCreds.Expires.Sub(time.Now()) < 0 {
-		log.Println("expired credentials triggering login")
-		return loginRefreshCredentials(sharedCreds, execFlags.LoginExecFlags)
-	}
-
-	ok, err := checkToken(account.Profile)
+	ok, err := checkToken(alibabacloudCreds)
 	if err != nil {
 		return nil, errors.Wrap(err, "error validating token")
 	}
 
 	if !ok {
-		log.Println("aws rejected credentials triggering login")
+		log.Println("AlibabaCloud rejected credentials triggering login")
 		return loginRefreshCredentials(sharedCreds, execFlags.LoginExecFlags)
 	}
 
-	return awsCreds, nil
+	return alibabacloudCreds, nil
 }
 
-func loginRefreshCredentials(sharedCreds *awsconfig.CredentialsProvider, execFlags *flags.LoginExecFlags) (*awsconfig.AWSCredentials, error) {
+func loginRefreshCredentials(sharedCreds *alibabacloudconfig.CredentialsProvider, execFlags *flags.LoginExecFlags) (*alibabacloudconfig.AliCloudCredentials, error) {
 	err := Login(execFlags)
 	if err != nil {
 		return nil, errors.Wrap(err, "error logging in")
@@ -110,11 +104,11 @@ func loginRefreshCredentials(sharedCreds *awsconfig.CredentialsProvider, execFla
 	return sharedCreds.Load()
 }
 
-func federatedLogin(creds *awsconfig.AWSCredentials, consoleFlags *flags.ConsoleFlags) error {
+func federatedLogin(creds *alibabacloudconfig.AliCloudCredentials, consoleFlags *flags.ConsoleFlags) error {
 	jsonBytes, err := json.Marshal(map[string]string{
-		"sessionId":    creds.AWSAccessKey,
-		"sessionKey":   creds.AWSSecretKey,
-		"sessionToken": creds.AWSSessionToken,
+		"sessionId":    creds.AliCloudAccessKey,
+		"sessionKey":   creds.AliCloudSecretKey,
+		"sessionToken": creds.AliCloudSessionToken,
 	})
 	if err != nil {
 		return err
@@ -155,7 +149,7 @@ func federatedLogin(creds *awsconfig.AWSCredentials, consoleFlags *flags.Console
 		return err
 	}
 
-	destination := "https://console.aws.amazon.com/"
+	destination := "https://home.console.aliyun.com/"
 
 	loginURL := fmt.Sprintf(
 		"%s?Action=login&Issuer=%s&Destination=%s&SigninToken=%s",

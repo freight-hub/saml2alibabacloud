@@ -1,4 +1,4 @@
-package saml2aws
+package saml2alibabacloud
 
 import (
 	"testing"

@@ -3,7 +3,7 @@ package credentials
 import (
 	"path"
 
-	"github.com/versent/saml2aws/v2/pkg/creds"
+	"github.com/aliyun/saml2alibabacloud/pkg/creds"
 )
 
 // LookupCredentials lookup an existing set of credentials and validate it.

@@ -7,8 +7,8 @@ import (
 	"net/http"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/aliyun/saml2alibabacloud/pkg/creds"
 	"github.com/pkg/errors"
-	"github.com/versent/saml2aws/v2/pkg/creds"
 )
 
 func (ac *Client) authenticateNTLM(loginDetails *creds.LoginDetails) (string, error) {
@@ -18,7 +18,7 @@ func (ac *Client) authenticateNTLM(loginDetails *creds.LoginDetails) (string, er
 		return nil
 	}
 
-	url := fmt.Sprintf("%s/adfs/ls/IdpInitiatedSignOn.aspx?loginToRp=%s", loginDetails.URL, ac.idpAccount.AmazonWebservicesURN)
+	url := fmt.Sprintf("%s/adfs/ls/IdpInitiatedSignOn.aspx?loginToRp=%s", loginDetails.URL, ac.idpAccount.AlibabaCloudURN)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return "", err

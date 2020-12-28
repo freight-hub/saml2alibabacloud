@@ -2,11 +2,11 @@
 
 <HEAD>
     <TITLE>SAML HTTP Post Binding</TITLE>
-    <SCRIPT> if (typeof history.replaceState === 'function') { history.replaceState({}, "some title", "https://id.example.com/auth/realms/master/login-actions/authenticate?client_id=urn%3Aamazon%3Awebservices"); }</SCRIPT>
+    <SCRIPT> if (typeof history.replaceState === 'function') { history.replaceState({}, "some title", "https://id.example.com/auth/realms/master/login-actions/authenticate?client_id=urn%3Aalibaba%3Acloudcomputing"); }</SCRIPT>
 </HEAD>
 
 <BODY Onload="document.forms[0].submit()">
-    <FORM METHOD="POST" ACTION="https://signin.aws.amazon.com/saml">
+    <FORM METHOD="POST" ACTION="https://signin.aliyun.com/saml-role/sso">
         <INPUT TYPE="BUTTON" VALUE="Click"/>
         <INPUT TYPE="HIDDEN" NAME="SAMLResponse" VALUE="abc123"
         />

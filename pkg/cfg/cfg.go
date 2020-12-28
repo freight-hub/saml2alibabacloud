@@ -13,39 +13,40 @@ import (
 var ErrIdpAccountNotFound = errors.New("IDP account not found, run configure to set it up")
 
 const (
-	// DefaultConfigPath the default saml2aws configuration path
-	DefaultConfigPath = "~/.saml2aws"
+	// DefaultConfigPath the default saml2alibabacloud configuration path
+	DefaultConfigPath = "~/.saml2alibabacloud"
 
-	// DefaultAmazonWebservicesURN URN used when authenticating to aws using SAML
-	// NOTE: This only needs to be changed to log into GovCloud
-	DefaultAmazonWebservicesURN = "urn:amazon:webservices"
+	// DefaultAlibabaCloudURN URN used when authenticating to AlibabaCloud using SAML
+	// NOTE: Currently, this does not need to be changed
+	DefaultAlibabaCloudURN = "urn:alibaba:cloudcomputing"
 
-	// DefaultSessionDuration this is the default session duration which can be overridden in the AWS console
-	// see https://aws.amazon.com/blogs/security/enable-federated-api-access-to-your-aws-resources-for-up-to-12-hours-using-iam-roles/
+	// DefaultSessionDuration this is the default session duration which can be overridden in the AlibabaCloud console
+	// see https://www.alibabacloud.com/help/doc-detail/166256.htm
 	DefaultSessionDuration = 3600
 
-	// DefaultProfile this is the default profile name used to save the credentials in the aws cli
+	// DefaultProfile this is the default profile name used to save the credentials in the `aliyun` cli
+	// see https://www.alibabacloud.com/help/doc-detail/121259.htm
 	DefaultProfile = "saml"
 )
 
 // IDPAccount saml IDP account
 type IDPAccount struct {
-	AppID                string `ini:"app_id"` // used by OneLogin and AzureAD
-	URL                  string `ini:"url"`
-	Username             string `ini:"username"`
-	Provider             string `ini:"provider"`
-	MFA                  string `ini:"mfa"`
-	SkipVerify           bool   `ini:"skip_verify"`
-	Timeout              int    `ini:"timeout"`
-	AmazonWebservicesURN string `ini:"aws_urn"`
-	SessionDuration      int    `ini:"aws_session_duration"`
-	Profile              string `ini:"aws_profile"`
-	ResourceID           string `ini:"resource_id"` // used by F5APM
-	Subdomain            string `ini:"subdomain"`   // used by OneLogin
-	RoleARN              string `ini:"role_arn"`
-	Region               string `ini:"region"`
-	HttpAttemptsCount    string `ini:"http_attempts_count"`
-	HttpRetryDelay       string `ini:"http_retry_delay"`
+	AppID             string `ini:"app_id"` // used by OneLogin and AzureAD
+	URL               string `ini:"url"`
+	Username          string `ini:"username"`
+	Provider          string `ini:"provider"`
+	MFA               string `ini:"mfa"`
+	SkipVerify        bool   `ini:"skip_verify"`
+	Timeout           int    `ini:"timeout"`
+	AlibabaCloudURN   string `ini:"alibabacloud_urn"`
+	SessionDuration   int    `ini:"alibabacloud_session_duration"`
+	Profile           string `ini:"alibabacloud_profile"`
+	ResourceID        string `ini:"resource_id"` // used by F5APM
+	Subdomain         string `ini:"subdomain"`   // used by OneLogin
+	RoleARN           string `ini:"role_arn"`
+	Region            string `ini:"region"`
+	HTTPAttemptsCount string `ini:"http_attempts_count"`
+	HTTPRetryDelay    string `ini:"http_retry_delay"`
 }
 
 func (ia IDPAccount) String() string {
@@ -69,12 +70,11 @@ func (ia IDPAccount) String() string {
   Provider: %s
   MFA: %s
   SkipVerify: %v
-  AmazonWebservicesURN: %s
   SessionDuration: %d
   Profile: %s
   RoleARN: %s
   Region: %s
-}`, appID, policyID, ia.URL, ia.Username, ia.Provider, ia.MFA, ia.SkipVerify, ia.AmazonWebservicesURN, ia.SessionDuration, ia.Profile, ia.RoleARN, ia.Region)
+}`, appID, policyID, ia.URL, ia.Username, ia.Provider, ia.MFA, ia.SkipVerify, ia.SessionDuration, ia.Profile, ia.RoleARN, ia.Region)
 }
 
 // Validate validate the required / expected fields are set
@@ -124,9 +124,9 @@ func (ia *IDPAccount) Validate() error {
 // NewIDPAccount Create an idp account and fill in any default fields with sane values
 func NewIDPAccount() *IDPAccount {
 	return &IDPAccount{
-		AmazonWebservicesURN: DefaultAmazonWebservicesURN,
-		SessionDuration:      DefaultSessionDuration,
-		Profile:              DefaultProfile,
+		AlibabaCloudURN: DefaultAlibabaCloudURN,
+		SessionDuration: DefaultSessionDuration,
+		Profile:         DefaultProfile,
 	}
 }
 

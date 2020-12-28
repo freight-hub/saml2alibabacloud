@@ -1,13 +1,10 @@
 # googleapps
 
-This provider uses SAML with Google Apps to enable authentication of users to AWS. 
+This provider uses SAML with Google Apps to enable authentication of users to AlibabaCloud. 
 
 # prerequisites
 
-Setup your Google Apps and AWS Account as per one of the configuration guides.
-
-* [How to Set Up Federated Single Sign-On to AWS Using Google Apps](https://aws.amazon.com/blogs/security/how-to-set-up-federated-single-sign-on-to-aws-using-google-apps/)
-* [Using Google Apps SAML SSO to do one-click login to AWS](https://blog.faisalmisle.com/2015/11/using-google-apps-saml-sso-to-do-one-click-login-to-aws/)
+Setup SSO to AlibabaCloud using Google Apps.
 
 # configuration
 
@@ -18,7 +15,7 @@ The key attribute in configuring this provider is the URL which can be copied fr
 Where the following attributes are replace with:
 
 * `XXXXX` is IdP identifier for your Google Apps Account.
-* `YYYYY` is SP identifier for the AWS SAML application, in your Google Apps Account.
+* `YYYYY` is SP identifier for the AlibabaCloud SAML application, in your Google Apps Account.
 
 # 2-factor support
 

@@ -10,9 +10,9 @@ import (
 
 	"github.com/Azure/go-ntlmssp"
 	"github.com/PuerkitoBio/goquery"
+	"github.com/aliyun/saml2alibabacloud/pkg/cfg"
+	"github.com/aliyun/saml2alibabacloud/pkg/creds"
 	"github.com/sirupsen/logrus"
-	"github.com/versent/saml2aws/v2/pkg/cfg"
-	"github.com/versent/saml2aws/v2/pkg/creds"
 )
 
 var logger = logrus.WithField("provider", "adfs2")

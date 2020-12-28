@@ -10,11 +10,11 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/aliyun/saml2alibabacloud/pkg/cfg"
+	"github.com/aliyun/saml2alibabacloud/pkg/creds"
+	"github.com/aliyun/saml2alibabacloud/pkg/prompter"
+	"github.com/aliyun/saml2alibabacloud/pkg/provider"
 	"github.com/pkg/errors"
-	"github.com/versent/saml2aws/v2/pkg/cfg"
-	"github.com/versent/saml2aws/v2/pkg/creds"
-	"github.com/versent/saml2aws/v2/pkg/prompter"
-	"github.com/versent/saml2aws/v2/pkg/provider"
 )
 
 // Client wrapper around ADFS enabling authentication and retrieval of assertions
@@ -59,9 +59,9 @@ func (ac *Client) Authenticate(loginDetails *creds.LoginDetails) (string, error)
 	var samlAssertion string
 	var instructions string
 
-	awsURN := url.QueryEscape(ac.idpAccount.AmazonWebservicesURN)
+	alibabacloudURN := url.QueryEscape(ac.idpAccount.AlibabaCloudURN)
 
-	adfsURL := fmt.Sprintf("%s/adfs/ls/IdpInitiatedSignOn.aspx?loginToRp=%s", loginDetails.URL, awsURN)
+	adfsURL := fmt.Sprintf("%s/adfs/ls/IdpInitiatedSignOn.aspx?loginToRp=%s", loginDetails.URL, alibabacloudURN)
 
 	mfaToken := loginDetails.MFAToken
 

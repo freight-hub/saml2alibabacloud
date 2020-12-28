@@ -1,14 +1,14 @@
-package saml2aws
+package saml2alibabacloud
 
 import (
 	"fmt"
 	"log"
 	"sort"
 
+	"github.com/aliyun/saml2alibabacloud/pkg/cfg"
+	"github.com/aliyun/saml2alibabacloud/pkg/creds"
+	"github.com/aliyun/saml2alibabacloud/pkg/prompter"
 	"github.com/pkg/errors"
-	"github.com/versent/saml2aws/v2/pkg/cfg"
-	"github.com/versent/saml2aws/v2/pkg/creds"
-	"github.com/versent/saml2aws/v2/pkg/prompter"
 )
 
 // PromptForConfigurationDetails prompt the user to present their hostname, username and mfa
@@ -37,7 +37,7 @@ func PromptForConfigurationDetails(idpAccount *cfg.IDPAccount) error {
 		idpAccount.MFA = mfas[0]
 	}
 
-	idpAccount.Profile = prompter.String("AWS Profile", idpAccount.Profile)
+	idpAccount.Profile = prompter.String("AlibabaCloud CLI Profile", idpAccount.Profile)
 
 	idpAccount.URL = prompter.String("URL", idpAccount.URL)
 	idpAccount.Username = prompter.String("Username", idpAccount.Username)
@@ -87,10 +87,10 @@ func PromptForLoginDetails(loginDetails *creds.LoginDetails, provider string) er
 	return nil
 }
 
-// PromptForAWSRoleSelection present a list of roles to the user for selection
-func PromptForAWSRoleSelection(accounts []*AWSAccount) (*AWSRole, error) {
+// PromptForRamRoleSelection present a list of roles to the user for selection
+func PromptForRamRoleSelection(accounts []*AlibabaCloudAccount) (*RamRole, error) {
 
-	roles := map[string]*AWSRole{}
+	roles := map[string]*RamRole{}
 	var roleOptions []string
 
 	for _, account := range accounts {

@@ -5,17 +5,15 @@ import (
 	"log"
 	"os"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/sts"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/sts"
+	saml2alibabacloud "github.com/aliyun/saml2alibabacloud"
+	"github.com/aliyun/saml2alibabacloud/helper/credentials"
+	"github.com/aliyun/saml2alibabacloud/pkg/alibabacloudconfig"
+	"github.com/aliyun/saml2alibabacloud/pkg/cfg"
+	"github.com/aliyun/saml2alibabacloud/pkg/creds"
+	"github.com/aliyun/saml2alibabacloud/pkg/flags"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"github.com/versent/saml2aws/v2"
-	"github.com/versent/saml2aws/v2/helper/credentials"
-	"github.com/versent/saml2aws/v2/pkg/awsconfig"
-	"github.com/versent/saml2aws/v2/pkg/cfg"
-	"github.com/versent/saml2aws/v2/pkg/creds"
-	"github.com/versent/saml2aws/v2/pkg/flags"
 )
 
 // Login login to ADFS
@@ -28,7 +26,7 @@ func Login(loginFlags *flags.LoginExecFlags) error {
 		return errors.Wrap(err, "error building login details")
 	}
 
-	sharedCreds := awsconfig.NewSharedCredentials(account.Profile)
+	sharedCreds := alibabacloudconfig.NewSharedCredentials(account.Profile)
 
 	logger.Debug("check if Creds Exist")
 
@@ -60,7 +58,7 @@ func Login(loginFlags *flags.LoginExecFlags) error {
 
 	logger.WithField("idpAccount", account).Debug("building provider")
 
-	provider, err := saml2aws.NewSAMLClient(account)
+	provider, err := saml2alibabacloud.NewSAMLClient(account)
 	if err != nil {
 		return errors.Wrap(err, "error building IdP client")
 	}
@@ -76,7 +74,7 @@ func Login(loginFlags *flags.LoginExecFlags) error {
 	if samlAssertion == "" {
 		log.Println("Response did not contain a valid SAML assertion")
 		log.Println("Please check your username and password is correct")
-		log.Println("To see the output follow the instructions in https://github.com/versent/saml2aws#debugging-issues-with-idps")
+		log.Println("To see the output follow the instructions in https://github.com/aliyun/saml2alibabacloud#debugging-issues-with-idps")
 		os.Exit(1)
 	}
 
@@ -87,19 +85,19 @@ func Login(loginFlags *flags.LoginExecFlags) error {
 		}
 	}
 
-	role, err := selectAwsRole(samlAssertion, account)
+	role, err := selectRamRole(samlAssertion, account)
 	if err != nil {
-		return errors.Wrap(err, "Failed to assume role, please check whether you are permitted to assume the given role for the AWS service")
+		return errors.Wrap(err, "Failed to assume role, please check whether you are permitted to assume the given role for the AlibabaCloud STS service")
 	}
 
 	log.Println("Selected role:", role.RoleARN)
 
-	awsCreds, err := loginToStsUsingRole(account, role, samlAssertion)
+	alibabacloudCreds, err := loginToStsUsingRole(account, role, samlAssertion)
 	if err != nil {
-		return errors.Wrap(err, "error logging into aws role using saml assertion")
+		return errors.Wrap(err, "error logging into AlibabaCloud role using saml assertion")
 	}
 
-	return saveCredentials(awsCreds, sharedCreds)
+	return saveCredentials(alibabacloudCreds, sharedCreds)
 }
 
 func buildIdpAccount(loginFlags *flags.LoginExecFlags) (*cfg.IDPAccount, error) {
@@ -171,7 +169,7 @@ func resolveLoginDetails(account *cfg.IDPAccount, loginFlags *flags.LoginExecFla
 		return loginDetails, nil
 	}
 
-	err = saml2aws.PromptForLoginDetails(loginDetails, account.Provider)
+	err = saml2alibabacloud.PromptForLoginDetails(loginDetails, account.Provider)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error occurred accepting input")
 	}
@@ -179,40 +177,40 @@ func resolveLoginDetails(account *cfg.IDPAccount, loginFlags *flags.LoginExecFla
 	return loginDetails, nil
 }
 
-func selectAwsRole(samlAssertion string, account *cfg.IDPAccount) (*saml2aws.AWSRole, error) {
+func selectRamRole(samlAssertion string, account *cfg.IDPAccount) (*saml2alibabacloud.RamRole, error) {
 	data, err := b64.StdEncoding.DecodeString(samlAssertion)
 	if err != nil {
 		return nil, errors.Wrap(err, "error decoding saml assertion")
 	}
 
-	roles, err := saml2aws.ExtractAwsRoles(data)
+	roles, err := saml2alibabacloud.ExtractRamRoles(data)
 	if err != nil {
-		return nil, errors.Wrap(err, "error parsing aws roles")
+		return nil, errors.Wrap(err, "error parsing alicloud roles")
 	}
 
 	if len(roles) == 0 {
 		log.Println("No roles to assume")
-		log.Println("Please check you are permitted to assume roles for the AWS service")
+		log.Println("Please check you are permitted to assume roles for the AlibabaCloud service")
 		os.Exit(1)
 	}
 
-	awsRoles, err := saml2aws.ParseAWSRoles(roles)
+	alibabacloudRoles, err := saml2alibabacloud.ParseRamRoles(roles)
 	if err != nil {
-		return nil, errors.Wrap(err, "error parsing aws roles")
+		return nil, errors.Wrap(err, "error parsing AlibabaCloud roles")
 	}
 
-	return resolveRole(awsRoles, samlAssertion, account)
+	return resolveRole(alibabacloudRoles, samlAssertion, account)
 }
 
-func resolveRole(awsRoles []*saml2aws.AWSRole, samlAssertion string, account *cfg.IDPAccount) (*saml2aws.AWSRole, error) {
-	var role = new(saml2aws.AWSRole)
+func resolveRole(alibabacloudRoles []*saml2alibabacloud.RamRole, samlAssertion string, account *cfg.IDPAccount) (*saml2alibabacloud.RamRole, error) {
+	var role = new(saml2alibabacloud.RamRole)
 
-	if len(awsRoles) == 1 {
+	if len(alibabacloudRoles) == 1 {
 		if account.RoleARN != "" {
-			return saml2aws.LocateRole(awsRoles, account.RoleARN)
+			return saml2alibabacloud.LocateRole(alibabacloudRoles, account.RoleARN)
 		}
-		return awsRoles[0], nil
-	} else if len(awsRoles) == 0 {
+		return alibabacloudRoles[0], nil
+	} else if len(alibabacloudRoles) == 0 {
 		return nil, errors.New("no roles available")
 	}
 
@@ -221,27 +219,27 @@ func resolveRole(awsRoles []*saml2aws.AWSRole, samlAssertion string, account *cf
 		return nil, errors.Wrap(err, "error decoding saml assertion")
 	}
 
-	aud, err := saml2aws.ExtractDestinationURL(samlAssertionData)
+	aud, err := saml2alibabacloud.ExtractDestinationURL(samlAssertionData)
 	if err != nil {
 		return nil, errors.Wrap(err, "error parsing destination url")
 	}
 
-	awsAccounts, err := saml2aws.ParseAWSAccounts(aud, samlAssertion)
+	alibabacloudAccounts, err := saml2alibabacloud.ParseAlibabaCloudAccounts(aud, samlAssertion)
 	if err != nil {
-		return nil, errors.Wrap(err, "error parsing aws role accounts")
+		return nil, errors.Wrap(err, "error parsing AlibabaCloud role accounts")
 	}
-	if len(awsAccounts) == 0 {
+	if len(alibabacloudAccounts) == 0 {
 		return nil, errors.New("no accounts available")
 	}
 
-	saml2aws.AssignPrincipals(awsRoles, awsAccounts)
+	// saml2alibabacloud.AssignPrincipals(alibabacloudRoles, alibabacloudAccounts)
 
 	if account.RoleARN != "" {
-		return saml2aws.LocateRole(awsRoles, account.RoleARN)
+		return saml2alibabacloud.LocateRole(alibabacloudRoles, account.RoleARN)
 	}
 
 	for {
-		role, err = saml2aws.PromptForAWSRoleSelection(awsAccounts)
+		role, err = saml2alibabacloud.PromptForRamRoleSelection(alibabacloudAccounts)
 		if err == nil {
 			break
 		}
@@ -251,53 +249,43 @@ func resolveRole(awsRoles []*saml2aws.AWSRole, samlAssertion string, account *cf
 	return role, nil
 }
 
-func loginToStsUsingRole(account *cfg.IDPAccount, role *saml2aws.AWSRole, samlAssertion string) (*awsconfig.AWSCredentials, error) {
+func loginToStsUsingRole(account *cfg.IDPAccount, role *saml2alibabacloud.RamRole, samlAssertion string) (*alibabacloudconfig.AliCloudCredentials, error) {
 
-	sess, err := session.NewSession(&aws.Config{
-		Region: &account.Region,
-	})
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to create session")
-	}
+	client, err := sts.NewClientWithAccessKey("cn-hangzhou", "a", "b")
 
-	svc := sts.New(sess)
+	request := sts.CreateAssumeRoleWithSAMLRequest()
+	request.Scheme = "https"
+	request.RoleArn = role.RoleARN
+	request.SAMLAssertion = samlAssertion
+	request.SAMLProviderArn = role.PrincipalARN
 
-	params := &sts.AssumeRoleWithSAMLInput{
-		PrincipalArn:    aws.String(role.PrincipalARN), // Required
-		RoleArn:         aws.String(role.RoleARN),      // Required
-		SAMLAssertion:   aws.String(samlAssertion),     // Required
-		DurationSeconds: aws.Int64(int64(account.SessionDuration)),
-	}
+	log.Println("Requesting AlibabaCloud credentials using SAML assertion")
 
-	log.Println("Requesting AWS credentials using SAML assertion")
-
-	resp, err := svc.AssumeRoleWithSAML(params)
+	response, err := client.AssumeRoleWithSAML(request)
 	if err != nil {
 		return nil, errors.Wrap(err, "error retrieving STS credentials using SAML")
 	}
 
-	return &awsconfig.AWSCredentials{
-		AWSAccessKey:     aws.StringValue(resp.Credentials.AccessKeyId),
-		AWSSecretKey:     aws.StringValue(resp.Credentials.SecretAccessKey),
-		AWSSessionToken:  aws.StringValue(resp.Credentials.SessionToken),
-		AWSSecurityToken: aws.StringValue(resp.Credentials.SessionToken),
-		PrincipalARN:     aws.StringValue(resp.AssumedRoleUser.Arn),
-		Expires:          resp.Credentials.Expiration.Local(),
-		Region:           account.Region,
+	return &alibabacloudconfig.AliCloudCredentials{
+		AliCloudAccessKey:     response.Credentials.AccessKeyId,
+		AliCloudSecretKey:     response.Credentials.AccessKeySecret,
+		AliCloudSecurityToken: response.Credentials.SecurityToken,
+		PrincipalARN:          response.AssumedRoleUser.Arn,
+		Region:                account.Region,
 	}, nil
 }
 
-func saveCredentials(awsCreds *awsconfig.AWSCredentials, sharedCreds *awsconfig.CredentialsProvider) error {
-	err := sharedCreds.Save(awsCreds)
+func saveCredentials(alibabacloudCreds *alibabacloudconfig.AliCloudCredentials, sharedCreds *alibabacloudconfig.CredentialsProvider) error {
+	err := sharedCreds.Save(alibabacloudCreds)
 	if err != nil {
 		return errors.Wrap(err, "error saving credentials")
 	}
 
-	log.Println("Logged in as:", awsCreds.PrincipalARN)
+	log.Println("Logged in as:", alibabacloudCreds.PrincipalARN)
 	log.Println("")
-	log.Println("Your new access key pair has been stored in the AWS configuration")
-	log.Printf("Note that it will expire at %v", awsCreds.Expires)
-	log.Println("To use this credential, call the AWS CLI with the --profile option (e.g. aws --profile", sharedCreds.Profile, "ec2 describe-instances).")
+	log.Println("Your new access key pair has been stored in the AlibabaCloud CLI configuration")
+	// log.Printf("Note that it will expire at %v", alibabacloudCreds.Expires)
+	log.Println("To use this credential, call the AlibabaCloud CLI with the --profile option (e.g. aliyun --profile", sharedCreds.Profile, "sts GetCallerIdentity --region=cn-hangzhou).")
 
 	return nil
 }

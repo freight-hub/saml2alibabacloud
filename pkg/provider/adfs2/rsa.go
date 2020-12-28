@@ -9,10 +9,10 @@ import (
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/aliyun/saml2alibabacloud/pkg/creds"
+	"github.com/aliyun/saml2alibabacloud/pkg/dump"
+	"github.com/aliyun/saml2alibabacloud/pkg/prompter"
 	"github.com/pkg/errors"
-	"github.com/versent/saml2aws/v2/pkg/creds"
-	"github.com/versent/saml2aws/v2/pkg/dump"
-	"github.com/versent/saml2aws/v2/pkg/prompter"
 )
 
 // Authenticate authenticate the user using the supplied login details
@@ -34,7 +34,7 @@ func (ac *Client) authenticateRsa(loginDetails *creds.LoginDetails) (string, err
 	}
 
 	/**
-	 * RSAv2 requires an additional POST to establish a context
+	 * TODO RSAv2 requires an additional POST to establish a context
 	 * https://github.com/torric1/AWSCLI-MFA-RSAv2
 	 * https://gist.github.com/jgard/17262e0fc073c82bc7930db2f5603446
 	 */
@@ -104,7 +104,7 @@ func (ac *Client) postLoginForm(authSubmitURL string, authForm url.Values) (*goq
 
 func (ac *Client) getLoginForm(loginDetails *creds.LoginDetails) (string, url.Values, error) {
 
-	adfs2Url := fmt.Sprintf("%s/adfs/ls/IdpInitiatedSignOn.aspx?loginToRp=%s", loginDetails.URL, ac.idpAccount.AmazonWebservicesURN)
+	adfs2Url := fmt.Sprintf("%s/adfs/ls/IdpInitiatedSignOn.aspx?loginToRp=%s", loginDetails.URL, ac.idpAccount.AlibabaCloudURN)
 
 	req, err := http.NewRequest("GET", adfs2Url, nil)
 	if err != nil {

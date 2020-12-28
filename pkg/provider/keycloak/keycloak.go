@@ -10,11 +10,11 @@ import (
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/aliyun/saml2alibabacloud/pkg/cfg"
+	"github.com/aliyun/saml2alibabacloud/pkg/creds"
+	"github.com/aliyun/saml2alibabacloud/pkg/prompter"
+	"github.com/aliyun/saml2alibabacloud/pkg/provider"
 	"github.com/pkg/errors"
-	"github.com/versent/saml2aws/v2/pkg/cfg"
-	"github.com/versent/saml2aws/v2/pkg/creds"
-	"github.com/versent/saml2aws/v2/pkg/prompter"
-	"github.com/versent/saml2aws/v2/pkg/provider"
 )
 
 // Client wrapper around KeyCloak.
@@ -186,7 +186,7 @@ func extractSamlResponse(doc *goquery.Document) string {
 
 	doc.Find("input").Each(func(i int, s *goquery.Selection) {
 		name, ok := s.Attr("name")
-		if ( ok && name == "SAMLResponse" ) {
+		if ok && name == "SAMLResponse" {
 			val, ok := s.Attr("value")
 			if !ok {
 				log.Fatalf("unable to locate saml assertion value")

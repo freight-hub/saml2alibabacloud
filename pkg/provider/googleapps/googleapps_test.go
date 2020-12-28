@@ -10,9 +10,9 @@ import (
 	"testing"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/aliyun/saml2alibabacloud/pkg/creds"
+	"github.com/aliyun/saml2alibabacloud/pkg/provider"
 	"github.com/stretchr/testify/require"
-	"github.com/versent/saml2aws/v2/pkg/creds"
-	"github.com/versent/saml2aws/v2/pkg/provider"
 )
 
 func TestExtractInputByName(t *testing.T) {

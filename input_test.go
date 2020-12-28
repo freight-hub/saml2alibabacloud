@@ -1,9 +1,9 @@
-package saml2aws
+package saml2alibabacloud
 
 import (
 	"testing"
 
-	"github.com/versent/saml2aws/v2/pkg/creds"
+	"github.com/aliyun/saml2alibabacloud/pkg/creds"
 )
 
 func TestLoginDetails_Validate(t *testing.T) {

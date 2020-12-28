@@ -3,23 +3,21 @@ package shell
 import (
 	"reflect"
 	"testing"
-	"time"
 
-	"github.com/versent/saml2aws/v2/pkg/awsconfig"
-	"github.com/versent/saml2aws/v2/pkg/cfg"
-	"github.com/versent/saml2aws/v2/pkg/flags"
+	"github.com/aliyun/saml2alibabacloud/pkg/alibabacloudconfig"
+	"github.com/aliyun/saml2alibabacloud/pkg/cfg"
+	"github.com/aliyun/saml2alibabacloud/pkg/flags"
 )
 
 func TestBuildEnvVars(t *testing.T) {
 	account := &cfg.IDPAccount{
 		Profile: "saml",
 	}
-	awsCreds := &awsconfig.AWSCredentials{
-		AWSAccessKey:     "123",
-		AWSSecretKey:     "345",
-		AWSSecurityToken: "567",
-		AWSSessionToken:  "567",
-		Expires:          time.Date(2016, 9, 4, 14, 27, 0, 0, time.UTC),
+	alibabacloudCreds := &alibabacloudconfig.AliCloudCredentials{
+		AliCloudAccessKey:     "123",
+		AliCloudSecretKey:     "345",
+		AliCloudSecurityToken: "567",
+		AliCloudSessionToken:  "567",
 	}
 
 	tests := []struct {
@@ -31,14 +29,10 @@ func TestBuildEnvVars(t *testing.T) {
 			name:  "build-env",
 			flags: &flags.LoginExecFlags{},
 			want: []string{
-				"AWS_SESSION_TOKEN=567",
-				"AWS_SECURITY_TOKEN=567",
-				"EC2_SECURITY_TOKEN=567",
-				"AWS_ACCESS_KEY_ID=123",
-				"AWS_SECRET_ACCESS_KEY=345",
-				"AWS_CREDENTIAL_EXPIRATION=2016-09-04T14:27:00Z",
-				"AWS_PROFILE=saml",
-				"AWS_DEFAULT_PROFILE=saml",
+				"ALICLOUD_ASSUME_ROLE_SESSION_NAME=567",
+				"ALICLOUD_SECURITY_TOKEN=567",
+				"ALICLOUD_ACCESS_KEY=123",
+				"ALICLOUD_SECRET_KEY=345",
 			},
 		},
 		{
@@ -47,18 +41,16 @@ func TestBuildEnvVars(t *testing.T) {
 				ExecProfile: "testing",
 			},
 			want: []string{
-				"AWS_SESSION_TOKEN=567",
-				"AWS_SECURITY_TOKEN=567",
-				"EC2_SECURITY_TOKEN=567",
-				"AWS_ACCESS_KEY_ID=123",
-				"AWS_SECRET_ACCESS_KEY=345",
-				"AWS_CREDENTIAL_EXPIRATION=2016-09-04T14:27:00Z",
+				"ALICLOUD_ASSUME_ROLE_SESSION_NAME=567",
+				"ALICLOUD_SECURITY_TOKEN=567",
+				"ALICLOUD_ACCESS_KEY=123",
+				"ALICLOUD_SECRET_KEY=345",
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := BuildEnvVars(awsCreds, account, tt.flags); !reflect.DeepEqual(got, tt.want) {
+			if got := BuildEnvVars(alibabacloudCreds, account, tt.flags); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("BuildEnvVars() = %v, want %v", got, tt.want)
 			}
 		})

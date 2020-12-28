@@ -1,4 +1,4 @@
-package awsconfig
+package alibabacloudconfig
 
 import (
 	"io/ioutil"
@@ -6,36 +6,34 @@ import (
 	"path"
 	"path/filepath"
 	"runtime"
-	"time"
 
+	config "github.com/aliyun/aliyun-cli/config"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	ini "gopkg.in/ini.v1"
 )
 
 var (
 	// ErrCredentialsHomeNotFound returned when a user home directory can't be located.
 	ErrCredentialsHomeNotFound = errors.New("user home directory not found")
 
-	// ErrCredentialsNotFound returned when the required aws credentials don't exist.
-	ErrCredentialsNotFound = errors.New("aws credentials not found")
+	// ErrCredentialsNotFound returned when the required AlibabaCloud CLI credentials don't exist.
+	ErrCredentialsNotFound = errors.New("AlibabaCloud CLI credentials not found")
 
-	logger = logrus.WithField("pkg", "awsconfig")
+	logger = logrus.WithField("pkg", "alibabacloudconfig")
 )
 
-// AWSCredentials represents the set of attributes used to authenticate to AWS with a short lived session
-type AWSCredentials struct {
-	AWSAccessKey     string    `ini:"aws_access_key_id"`
-	AWSSecretKey     string    `ini:"aws_secret_access_key"`
-	AWSSessionToken  string    `ini:"aws_session_token"`
-	AWSSecurityToken string    `ini:"aws_security_token"`
-	PrincipalARN     string    `ini:"x_principal_arn"`
-	Expires          time.Time `ini:"x_security_token_expires"`
-	Region           string    `ini:"region,omitempty"`
+// AliCloudCredentials represents the set of attributes used to authenticate to AlibabaCloud with a short lived session
+type AliCloudCredentials struct {
+	AliCloudAccessKey     string `json:"access_key_id"`
+	AliCloudSecretKey     string `json:"access_key_secret"`
+	AliCloudSessionToken  string `json:"ram_session_name"`
+	AliCloudSecurityToken string `json:"sts_token"`
+	PrincipalARN          string `json:"ram_role_arn"`
+	Region                string `json:"region,omitempty"`
 }
 
-// CredentialsProvider loads aws credentials file
+// CredentialsProvider loads AlibabaCloud CLI credentials file
 type CredentialsProvider struct {
 	Filename string
 	Profile  string
@@ -67,58 +65,57 @@ func (p *CredentialsProvider) CredsExists() (bool, error) {
 }
 
 // Save persist the credentials
-func (p *CredentialsProvider) Save(awsCreds *AWSCredentials) error {
-	filename, err := p.resolveFilename()
+func (p *CredentialsProvider) Save(alibabacloudCreds *AliCloudCredentials) error {
+	configuration, err := config.LoadConfiguration(config.GetConfigPath()+"/config.json", os.Stdout)
 	if err != nil {
 		return err
 	}
-
-	err = p.ensureConfigExists()
-	if err != nil {
-		if os.IsNotExist(err) {
-			return createAndSaveProfile(filename, p.Profile, awsCreds)
-		}
-		return errors.Wrap(err, "unable to load file")
+	profile := config.Profile{
+		Name:            p.Profile,
+		Mode:            config.StsToken,
+		AccessKeyId:     alibabacloudCreds.AliCloudAccessKey,
+		AccessKeySecret: alibabacloudCreds.AliCloudSecretKey,
+		StsToken:        alibabacloudCreds.AliCloudSecurityToken,
+		OutputFormat:    "json",
+		Language:        "en",
 	}
-
-	return saveProfile(filename, p.Profile, awsCreds)
+	configuration.PutProfile(profile)
+	return config.SaveConfiguration(configuration)
 }
 
-// Load load the aws credentials file
-func (p *CredentialsProvider) Load() (*AWSCredentials, error) {
-	filename, err := p.resolveFilename()
+// Load load the AlibabaCloud CLI credentials file
+func (p *CredentialsProvider) Load() (*AliCloudCredentials, error) {
+	_, err := p.resolveFilename()
 	if err != nil {
 		return nil, err
 	}
 
-	config, err := ini.Load(filename)
+	configuration, err := config.LoadConfiguration(config.GetConfigPath()+"/config.json", os.Stdout)
 	if err != nil {
 		return nil, err
 	}
-
-	iniProfile, err := config.GetSection(p.Profile)
-	if err != nil {
-		return nil, ErrCredentialsNotFound
+	profile, ret := configuration.GetProfile(p.Profile)
+	if !ret {
+		return nil, errors.New("profile not found in AlibabaCloud CLI credentials")
 	}
 
-	awsCreds := new(AWSCredentials)
-
-	err = iniProfile.MapTo(awsCreds)
-	if err != nil {
-		return nil, ErrCredentialsNotFound
-	}
-
-	return awsCreds, nil
+	return &AliCloudCredentials{
+		AliCloudAccessKey:     profile.AccessKeyId,
+		AliCloudSecretKey:     profile.AccessKeySecret,
+		AliCloudSessionToken:  profile.RoleSessionName,
+		AliCloudSecurityToken: profile.StsToken,
+		PrincipalARN:          profile.RamRoleArn,
+	}, nil
 }
 
 // Expired checks if the current credentials are expired
 func (p *CredentialsProvider) Expired() bool {
-	creds, err := p.Load()
-	if err != nil {
-		return true
-	}
+	// _, err := p.Load()
+	// if err != nil {
+	// 	return true
+	// }
 
-	return time.Now().After(creds.Expires)
+	return true
 }
 
 // ensureConfigExists verify that the config file exists
@@ -171,18 +168,12 @@ func (p *CredentialsProvider) resolveFilename() (string, error) {
 
 func locateConfigFile() (string, error) {
 
-	filename := os.Getenv("AWS_SHARED_CREDENTIALS_FILE")
-
-	if filename != "" {
-		return filename, nil
-	}
-
 	var name string
 	var err error
 	if runtime.GOOS == "windows" {
-		name = path.Join(os.Getenv("USERPROFILE"), ".aws", "credentials")
+		name = path.Join(os.Getenv("USERPROFILE"), ".aliyun", "config.json")
 	} else {
-		name, err = homedir.Expand("~/.aws/credentials")
+		name, err = homedir.Expand("~/.aliyun/config.json")
 		if err != nil {
 			return "", ErrCredentialsHomeNotFound
 		}
@@ -212,39 +203,4 @@ func resolveSymlink(filename string) (string, error) {
 	}
 
 	return sympath, nil
-}
-
-func createAndSaveProfile(filename, profile string, awsCreds *AWSCredentials) error {
-
-	dirPath := filepath.Dir(filename)
-
-	err := os.Mkdir(dirPath, 0700)
-	if err != nil {
-		return errors.Wrapf(err, "unable to create %s directory", dirPath)
-	}
-
-	_, err = os.Create(filename)
-	if err != nil {
-		return errors.Wrapf(err, "unable to create configuration")
-	}
-
-	return saveProfile(filename, profile, awsCreds)
-}
-
-func saveProfile(filename, profile string, awsCreds *AWSCredentials) error {
-	config, err := ini.Load(filename)
-	if err != nil {
-		return err
-	}
-	iniProfile, err := config.NewSection(profile)
-	if err != nil {
-		return err
-	}
-
-	err = iniProfile.ReflectFrom(awsCreds)
-	if err != nil {
-		return err
-	}
-
-	return config.SaveTo(filename)
 }

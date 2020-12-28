@@ -1,32 +1,32 @@
 package flags
 
 import (
-	"github.com/versent/saml2aws/v2/pkg/cfg"
+	"github.com/aliyun/saml2alibabacloud/pkg/cfg"
 )
 
-// CommonFlags flags common to all of the `saml2aws` commands (except `help`)
+// CommonFlags flags common to all of the `saml2alibabacloud` commands (except `help`)
 type CommonFlags struct {
-	AppID                string
-	ClientID             string
-	ClientSecret         string
-	ConfigFile           string
-	IdpAccount           string
-	IdpProvider          string
-	MFA                  string
-	MFAToken             string
-	URL                  string
-	Username             string
-	Password             string
-	RoleArn              string
-	AmazonWebservicesURN string
-	SessionDuration      int
-	SkipPrompt           bool
-	SkipVerify           bool
-	Profile              string
-	Subdomain            string
-	ResourceID           string
-	DisableKeychain      bool
-	Region               string
+	AppID           string
+	ClientID        string
+	ClientSecret    string
+	ConfigFile      string
+	IdpAccount      string
+	IdpProvider     string
+	MFA             string
+	MFAToken        string
+	URL             string
+	Username        string
+	Password        string
+	RoleArn         string
+	AlibabaCloudURN string
+	SessionDuration int
+	SkipPrompt      bool
+	SkipVerify      bool
+	Profile         string
+	Subdomain       string
+	ResourceID      string
+	DisableKeychain bool
+	Region          string
 }
 
 // LoginExecFlags flags for the Login / Exec commands
@@ -68,8 +68,8 @@ func ApplyFlagOverrides(commonFlags *CommonFlags, account *cfg.IDPAccount) {
 		account.MFA = commonFlags.MFA
 	}
 
-	if commonFlags.AmazonWebservicesURN != "" {
-		account.AmazonWebservicesURN = commonFlags.AmazonWebservicesURN
+	if commonFlags.AlibabaCloudURN != "" {
+		account.AlibabaCloudURN = commonFlags.AlibabaCloudURN
 	}
 
 	if commonFlags.SessionDuration != 0 {

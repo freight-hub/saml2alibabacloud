@@ -2,13 +2,13 @@
 
 ## Instructions
 
-Retrieve the AWS application URL from your Okta tenant. This will (may) look something like:
+Retrieve the AlibabaCloud application URL from your Okta tenant. This will (may) look something like:
 
 ```
-https://$YOUR_ORGANIZATION.okta.com/home/amazon_aws/$OKTA_APPLICATION_ID/$OKTA_OTHER_ID
+https://$YOUR_ORGANIZATION.okta.com/home/alibabacloud/$OKTA_APPLICATION_ID/$OKTA_OTHER_ID
 ```
 
-The path segments `/home/amazon_aws` in the above URL may vary.
+The path segments `/home/alibabacloud` in the above URL may vary.
 
 ## Features
 

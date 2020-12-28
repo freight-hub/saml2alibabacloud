@@ -1,8 +1,8 @@
 package commands
 
 import (
-	"github.com/versent/saml2aws/v2/helper/credentials"
-	"github.com/versent/saml2aws/v2/helper/linuxkeyring"
+	"github.com/aliyun/saml2alibabacloud/helper/credentials"
+	"github.com/aliyun/saml2alibabacloud/helper/linuxkeyring"
 )
 
 func init() {

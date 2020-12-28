@@ -1,4 +1,4 @@
-package saml2aws
+package saml2alibabacloud
 
 import (
 	"fmt"
@@ -36,7 +36,7 @@ func (e ErrMissingElement) Error() string {
 }
 
 // ExtractSessionDuration this will attempt to extract a session duration from the assertion
-// see https://aws.amazon.com/SAML/Attributes/SessionDuration
+// see https://www.alibabacloud.com/help/doc-detail/110614.htm
 func ExtractSessionDuration(data []byte) (int64, error) {
 
 	doc := etree.NewDocument()
@@ -60,7 +60,7 @@ func ExtractSessionDuration(data []byte) (int64, error) {
 	attributes := attributeStatement.FindElements(childPath(assertionElement.Space, attributeTag))
 
 	for _, attribute := range attributes {
-		if attribute.SelectAttrValue("Name", "") != "https://aws.amazon.com/SAML/Attributes/SessionDuration" {
+		if attribute.SelectAttrValue("Name", "") != "https://www.aliyun.com/SAML-Role/Attributes/SessionDuration" {
 			continue
 		}
 		atributeValues := attribute.FindElements(childPath(assertionElement.Space, attributeValueTag))
@@ -69,12 +69,14 @@ func ExtractSessionDuration(data []byte) (int64, error) {
 		}
 	}
 
+	// TODO need to check `SessionNotOnOrAfter` attribute
+
 	return 0, nil
 }
 
 // ExtractDestinationURL will find the Destination URL to POST the SAML assertion to.
-// This is necessary to support AWS instances with custom endpoints such as GovCloud and AWS China without requiring
-// hardcoded endpoints on the saml2aws side.
+// This is necessary to support custom endpoints such as AlibabaCloud International without requiring
+// hardcoded endpoints on the saml2alibabacloud side.
 func ExtractDestinationURL(data []byte) (string, error) {
 
 	doc := etree.NewDocument()
@@ -87,16 +89,16 @@ func ExtractDestinationURL(data []byte) (string, error) {
 		return "", ErrMissingElement{Tag: responseTag}
 	}
 
-	destination := rootElement.SelectAttrValue("Destination","none")
+	destination := rootElement.SelectAttrValue("Destination", "none")
 	if destination == "none" {
-		// If Destination attribute is not found in Response (root) element, 
+		// If Destination attribute is not found in Response (root) element,
 		// get the Recipient attribute from the SubjectConfirmationData element.
 		subjectConfirmationDataElement := doc.FindElement(".//SubjectConfirmationData")
 		if subjectConfirmationDataElement == nil {
 			return "", ErrMissingElement{Tag: responseTag}
 		}
 
-		destination = subjectConfirmationDataElement.SelectAttrValue("Recipient","none")
+		destination = subjectConfirmationDataElement.SelectAttrValue("Recipient", "none")
 		if destination == "none" {
 			return "", ErrMissingElement{Tag: responseTag}
 		}
@@ -105,14 +107,14 @@ func ExtractDestinationURL(data []byte) (string, error) {
 	return destination, nil
 }
 
-// ExtractAwsRoles given an assertion document extract the aws roles
-func ExtractAwsRoles(data []byte) ([]string, error) {
+// ExtractRamRoles given an assertion document extract the AlibabaCloud RAM roles
+func ExtractRamRoles(data []byte) ([]string, error) {
 
-	awsroles := []string{}
+	ramRoles := []string{}
 
 	doc := etree.NewDocument()
 	if err := doc.ReadFromBytes(data); err != nil {
-		return awsroles, err
+		return ramRoles, err
 	}
 
 	// log.Printf("root tag: %s", doc.Root().Tag)
@@ -134,16 +136,16 @@ func ExtractAwsRoles(data []byte) ([]string, error) {
 
 	attributes := attributeStatement.FindElements(childPath(assertionElement.Space, attributeTag))
 	for _, attribute := range attributes {
-		if attribute.SelectAttrValue("Name", "") != "https://aws.amazon.com/SAML/Attributes/Role" {
+		if attribute.SelectAttrValue("Name", "") != "https://www.aliyun.com/SAML-Role/Attributes/Role" {
 			continue
 		}
 		atributeValues := attribute.FindElements(childPath(assertionElement.Space, attributeValueTag))
 		for _, attrValue := range atributeValues {
-			awsroles = append(awsroles, attrValue.Text())
+			ramRoles = append(ramRoles, attrValue.Text())
 		}
 	}
 
-	return awsroles, nil
+	return ramRoles, nil
 }
 
 func childPath(space, tag string) string {

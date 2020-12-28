@@ -10,9 +10,9 @@ import (
 	"testing"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/aliyun/saml2alibabacloud/pkg/cfg"
+	"github.com/aliyun/saml2alibabacloud/pkg/creds"
 	"github.com/stretchr/testify/require"
-	"github.com/versent/saml2aws/v2/pkg/cfg"
-	"github.com/versent/saml2aws/v2/pkg/creds"
 )
 
 func TestClient_getLoginForm(t *testing.T) {
@@ -26,7 +26,7 @@ func TestClient_getLoginForm(t *testing.T) {
 	defer ts.Close()
 
 	c := Client{
-		idpAccount: &cfg.IDPAccount{AmazonWebservicesURN: ""},
+		idpAccount: &cfg.IDPAccount{AlibabaCloudURN: ""},
 		client:     &http.Client{},
 	}
 	loginDetails := &creds.LoginDetails{URL: ts.URL, Username: "test", Password: "test123"}
@@ -59,7 +59,7 @@ func TestClient_postLoginForm(t *testing.T) {
 	}
 
 	c := Client{
-		idpAccount: &cfg.IDPAccount{AmazonWebservicesURN: ""},
+		idpAccount: &cfg.IDPAccount{AlibabaCloudURN: ""},
 		client:     &http.Client{},
 	}
 	content, err := c.postLoginForm(ts.URL, loginForm)

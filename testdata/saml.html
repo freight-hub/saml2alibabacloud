@@ -1,115 +1,199 @@
-<!DOCTYPE html>
-<html>
-<body>
 
-<div id="container">
-  
-  <h1 class="background">Amazon Web Services Login</h1>
-  
-  <div id="content">
- 
-  <div id="main_error"></div>
-  
-  <form id="saml_form" name="saml_form" action="/saml" method="post">
-          <input type="hidden" name="RelayState" value="" />
-          <input type="hidden" name="SAMLResponse" value="REDACTED" />
-          <input type="hidden" name="name" value="" />
-          <p style="font-size: 16px; padding-left: 20px;">Select a role:</p>
-          <fieldset>
-            <div  class="saml-account"> <div onClick="expandCollapse(0); expandCollapse(1);">
-              <img id="image0" src="/static/image/down.png" valign="middle"></img>
-              <div class="saml-account-name">Account: account-alias (000000000001)</div>
-              </div>
-              <hr style="border: 1px solid #ddd;">
-              <div id="0" class="saml-account" >  
-                <div class="saml-role" onClick="checkRadio(this);">
-                    <input type="radio" name="roleIndex" value="arn:aws:iam::000000000001:role/Development" class="saml-radio" id="arn:aws:iam::000000000001:role/Development" />
-                    <label for="arn:aws:iam::000000000001:role/Development" class="saml-role-description">Development</label>
-                    <span style="clear: both;"></span>
-                </div>
-                 </div>
-              <div id="1" class="saml-account" >  
-                <div class="saml-role" onClick="checkRadio(this);">
-                    <input type="radio" name="roleIndex" value="arn:aws:iam::000000000001:role/Production" class="saml-radio" id="arn:aws:iam::000000000001:role/Production" />
-                    <label for="arn:aws:iam::000000000001:role/Production" class="saml-role-description">Production</label>
-                    <span style="clear: both;"></span>
-                </div>
-                 </div>
-							</div>
-              <div  class="saml-account"> <div onClick="expandCollapse(2);">
-              <img id="image4" src="/static/image/down.png" valign="middle"></img>
-              <div class="saml-account-name">Account: 000000000002</div>
-              </div>
-              <hr style="border: 1px solid #ddd;">
-              <div id="2" class="saml-account" >  
-                <div class="saml-role" onClick="checkRadio(this);">
-                    <input type="radio" name="roleIndex" value="arn:aws:iam::000000000002:role/Production" class="saml-radio" id="arn:aws:iam::000000000002:role/Production" />
-                    <label for="arn:aws:iam::000000000002:role/Production" class="saml-role-description">Production</label>
-                    <span style="clear: both;"></span>
-                </div>
-                 </div></div>
-          </fieldset>  
-          
-          <br>
-          <div class="buttoninput" id="input_signin_button">
-              <a id="signin_button" class="css3button" href="#" alt="Continue" value="Continue">Sign In</a>
-          </div>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN">
+<html lang="en"  >
+<head>
+    <meta charset="utf-8">
+    <!--[if IE]>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <![endif]-->
+    <meta name="robots" content="noodp, noydir"/>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="-1">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>SAML SSO</title>
+    <link rel="shortcut icon" href="//img.alicdn.com/tfs/TB1_ZXuNcfpK1RjSZFOXXa6nFXa-32-32.ico" type="image/x-icon" />
 
-  </form>
-  </div>
+    <link rel="stylesheet" type="text/css"
+          href="//g.alicdn.com/aliyun/console/1.4.52/styles/bootstrap/bootstrap.css?v=2020121709">
+    <link rel="stylesheet" type="text/css"
+          href="//g.alicdn.com/aliyun/console/1.4.52/styles/angular-growl.min.css?v=2020121709">
+    <link rel="stylesheet" type="text/css"
+          href="//g.alicdn.com/aliyun/console/1.4.52/styles/console.css?v=2020121709">
+    <script nonce="zXIooLABpz" type="text/javascript"
+            src="https://www.aliyun.com/rgn/aliyun_assets?renderer=js&nonce=zXIooLABpz"></script>
+    <link rel="stylesheet"
+          href="//g.alicdn.com/aliyun/account/0.0.25/css/account_common.css?v=2020121709">
 
-  <br/>
-  <div id="smallprint" style="text-align: center;">
-  <div class="textinput" style = "text-align: center; font-size: x-small;">
-    
-    <div style="border-top: 1px solid #ccc; margin-bottom: 12px; padding-top: 1em; text-align: center;">
-        <select id="languageSelector">
-        
-            <option value="en_US"  selected >English</option>
-        
-            <option value="de_DE" >Deutsch</option>
-        
-            <option value="es_ES" >Español</option>
-        
-            <option value="fr_FR" >Français</option>
-        
-            <option value="ja" >日本語</option>
-        
-            <option value="pt_BR" >Português</option>
-        
-            <option value="ko_KR" >한국어</option>
-        
-            <option value="zh_CN" >中文(简体)</option>
-        
-        </select>
-        
-        <script type="text/javascript">
-            var currentYear = new Date().getFullYear()
+    <style type="text/css">
+        .content {
+            margin-top: 0;
+        }
 
-            $(document).ready(function () {
-                $('#languageSelector').bind("change", function () {
-                        document.cookie= ("noflush_locale=" + $('#languageSelector').val()+ "; domain=.amazon.com");
-                        window.location.reload();
-                });
-            });
-        </script>
+        .y-margin {
+            margin-top: 30px;
+            margin-left: 250px;
+            width: 90% !important;
+        }
+
+        .y-row {
+            margin-bottom: 20px;
+            min-height: 250px;
+        }
+
+        .form-marign {
+            margin-top: 10px;
+        }
+
+        .mfa-form-foot {
+            margin-top: 40px;
+        }
+
+        .floatleft2 {
+            margin-left: 2%;
+        }
+
+        .error-tip {
+            font-weight: bold;
+            color: red;
+        }
+    </style>
+</head>
+<body><script type="text/javascript"
+id="beacon-aplus"
+src="//g.alicdn.com/alilog/mlog/aplus_v2.js"
+exparams="category=&userid=&aplus&yunid=&yunpk=&channel=&cps="
+nonce="zXIooLABpz"
+cspx="zXIooLABpz"
+async>
+</script>
+<!--body-->
+        <div id="header" data-spm="1">
+    <div class="header-layout y-row">
+        <h1 class="logo" id="logo"
+                        style="background: url('https://img.alicdn.com/tps/TB1jRyCLpXXXXbtapXXXXXXXXXX-160-39.png') no-repeat !important;"
+                            ><a href="http://www.aliyun.com"
+                                style="width: 165px;"
+            >Alibaba Cloud</a></h1>
+
+        <h2 class="logo-title" style="margin-top:5px">
+                            SAML SSO
+                    </h2>
+        <ul class="header-nav">
+            <li class="nav-first"><a href="http://www.aliyun.com" target="_blank">Homepage</a></li>
+        </ul>
     </div>
-    
-    <a href="https://aws.amazon.com/terms/">Terms of Use</a>
-    <a href="https://aws.amazon.com/privacy/">Privacy Policy</a><br/>
-    
+</div>
+<div class="content y-row">
 
-    
-        <script type="text/javascript">
-          document.write('&copy; 1996-' + currentYear + ', Amazon Web Services, Inc. or its affiliates.');
-        </script>
-    
+    <div class="console-title">
+        <h4>Role-based SSO</h4>
+    </div>
+    <div class="alert alert-info" id="top-tip">
+        Please select a role
+    </div>
+    <div class="y-row">
+        <div class="y-span8 y-margin">
+            <form id="samlRoleForm" class="form-horizontal ng-pristine ng-valid"
+                  action='/saml-role/sso' method='post' autocomplete="off">
+                <input type="hidden" name="sec_token" value=""/>
+                <input type="hidden" name="RelayState" value="https://home.console.aliyun.com/"/>
+                <input type="hidden" name="SAMLResponse" value="xxxxxxxx"/>
 
-  </div>
+                                    <div class="form-group">
+                        <label for="inputRole"
+                               class="col-sm-2"></label>
+                        <div class="col-sm-4">
+                            <label>
+                                Account  : 
+                                                                    000000000001 (000000000001)
+                                
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputRole"
+                               class="col-sm-2 control-label"></label>
+                        <div class="col-sm-4 floatleft2">
+                                                            <div class="radio">
+                                    <label>
+                                        <input type="radio" name="roleAttribute"
+                                               value="acs:ram::000000000001:role/Development,acs:ram::000000000001:saml-provider/example-idp">
+                                        Development
+                                    </label>
+                                </div>
+                                                            <div class="radio">
+                                    <label>
+                                        <input type="radio" name="roleAttribute"
+                                               value="acs:ram::000000000001:role/Production,acs:ram::000000000001:saml-provider/example-idp">
+                                        Production
+                                    </label>
+                                </div>
+                                                    </div>
+                    </div>
+                                    <div class="form-group">
+                        <label for="inputRole"
+                               class="col-sm-2"></label>
+                        <div class="col-sm-4">
+                            <label>
+                                Account  : 
+                                                                    000000000002 (000000000002)
+                                
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputRole"
+                               class="col-sm-2 control-label"></label>
+                        <div class="col-sm-4 floatleft2">
+                                                            <div class="radio">
+                                    <label>
+                                        <input type="radio" name="roleAttribute"
+                                               value="acs:ram::000000000002:role/Development,acs:ram::000000000002:saml-provider/example-idp">
+                                        Development
+                                    </label>
+                                </div>
+                                                            <div class="radio">
+                                    <label>
+                                        <input type="radio" name="roleAttribute"
+                                               value="acs:ram::000000000002:role/Production,acs:ram::000000000002:saml-provider/example-idp">
+                                        Production
+                                    </label>
+                                </div>
+                                                    </div>
+                    </div>
+                                                <div class="form-group">
+                    <label for="inputAuthCode" class="col-sm-2 control-label"> </label>
+
+                    <div class="col-sm-4 mfa-form-foot floatleft2">
+                        <button type="button" class="y-btn-blue" id="confirm">Sign In</button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+<!--footer-->
+    <div class="copyright-100" data-spm="999">
+    <div class="y-row copyright">
+        <p class="big"><span><a href="http://www.aliyun.com/about"></a></span><span><a href="http://www.aliyun.com/law"></a></span><span><a href="http://www.aliyun.com/links"></a></span></p>
+        <p><span><a href="http://page.1688.com/shtml/about/ali_group1.shtml"></a></span><span><a href="http://www.alibaba.com/"></a></span><span><a href="http://www.1688.com/">1688</a></span><span><a href="http://www.aliexpress.com/">Aliexpress</a></span><span><a href="http://www.taobao.com/">Taobao</a></span><span><a href="http://www.tmall.com/">Tmall</a></span><span><a href="http://ju.taobao.com/">Juhuasuan</a></span><span><a href="http://www.etao.com/">Etao</a></span><span><a href="http://www.alimama.com/">Alimama</a></span><span><a href="http://www.aliyun.com/">Alibaba Cloud</a></span><span><a href="http://www.yunos.com/">YunOS</a></span><span><a href="http://www.net.cn/">Hichina</a></span><span><a href="http://www.alipay.com/">Alipay</a></span><span><a href="http://www.laiwang.com/">Laiwang</a></span></p>
+        <p>&copy; 2019 Copyright by Alibaba Cloud ICP License：浙B2-20080101</p>
+        <p><a class="img img-1" data-spm-anchor-id="5176.7034545.0.0" target="_blank" href="http://122.224.75.236/wzba/login.do?spm=5176.7034545.0.0.ekp5XS&amp;method=hdurl&amp;doamin=http://www.aliyun.com/&amp;id=330108000016033&amp;SHID=1223.0AFF_NAME=com.rouger.gs.main.UserInfoAff&amp;AFF_ACTION=qyhzdetail&amp;PAGE_URL=ShowDetail"></a><a class="img img-2" target="_blank" href="http://www.aliyun.com/djcp"></a></p>
+    </div>
 </div>
 
-</div>
-  
+<script nonce="zXIooLABpz" type="text/javascript" src="//g.alicdn.com/kissy/k/1.4.4/seed-min.js?v=2020121709"
+        charset="utf-8"></script>
+<script nonce="zXIooLABpz" type="text/javascript"
+        src="//g.alicdn.com/aliyun/account/0.0.8/js/jQuery1.9.0.js?v=2020121709"
+        charset="utf-8"></script>
+<script nonce="zXIooLABpz" type="text/javascript">
+    $('#confirm').bind("click", function () {
+        $('#samlRoleForm').submit();
+    });
+
+</script>
 </body>
 </html>
-

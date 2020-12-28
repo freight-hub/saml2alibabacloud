@@ -12,17 +12,17 @@ var (
 	ErrCredentialsNotFound = errors.New("credentials not found in native keychain")
 )
 
-// Credentials holds the information shared between saml2aws and the credentials store.
+// Credentials holds the information shared between saml2alibabacloud and the credentials store.
 type Credentials struct {
 	ServerURL string
 	Username  string
 	Secret    string
 }
 
-// CredsLabel saml2aws credentials should be labeled as such in credentials stores that allow labelling.
+// CredsLabel saml2alibabacloud credentials should be labeled as such in credentials stores that allow labelling.
 // That label allows to filter out non-Docker credentials too at lookup/search in macOS keychain,
-// Windows credentials manager and Linux libsecret. Default value is "saml2aws Credentials"
-var CredsLabel = "saml2aws Credentials"
+// Windows credentials manager and Linux libsecret. Default value is "saml2alibabacloud Credentials"
+var CredsLabel = "saml2alibabacloud Credentials"
 
 // Helper is the interface a credentials store helper must implement.
 type Helper interface {

@@ -3,8 +3,8 @@
 ## Instructions
 
 Uses default Shibboleth 3.3 pathing for the entry point.
-e.g. if url is "https://idp.example.com" and the aws_urn is the default, this will construct the following URL to use.
-https://idp.example.com/idp/profile/SAML2/Unsolicited/SSO?providerId=urn:amazon:webservices
+e.g. if url is "https://idp.example.com" and the urn is the default, this will construct the following URL to use.
+https://idp.example.com/idp/profile/SAML2/Unsolicited/SSO?providerId=urn:alibaba:cloudcomputing
 
 ## Features
 

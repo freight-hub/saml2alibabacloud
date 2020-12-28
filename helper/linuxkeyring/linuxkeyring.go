@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 
 	"github.com/99designs/keyring"
+	"github.com/aliyun/saml2alibabacloud/helper/credentials"
 	"github.com/sirupsen/logrus"
-	"github.com/versent/saml2aws/v2/helper/credentials"
 )
 
 var logger = logrus.WithField("helper", "linuxkeyring")
@@ -22,7 +22,7 @@ func NewKeyringHelper() (*KeyringHelper, error) {
 			keyring.PassBackend,
 		},
 		LibSecretCollectionName: "login",
-		PassPrefix:              "saml2aws",
+		PassPrefix:              "saml2alibabacloud",
 	})
 
 	if err != nil {

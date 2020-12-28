@@ -2,12 +2,13 @@ package netiq
 
 import (
 	"bytes"
-	"github.com/PuerkitoBio/goquery"
-	"github.com/stretchr/testify/require"
-	"github.com/versent/saml2aws/v2/pkg/page"
 	"io/ioutil"
 	"net/url"
 	"testing"
+
+	"github.com/PuerkitoBio/goquery"
+	"github.com/aliyun/saml2alibabacloud/pkg/page"
+	"github.com/stretchr/testify/require"
 )
 
 func TestIsSAMLResponsePositive(t *testing.T) {
@@ -56,7 +57,7 @@ func TestExtractGetToContentUrlPositive(t *testing.T) {
 	//given
 	getToContentData, err := ioutil.ReadFile("responses/getToContent.html")
 	require.Nil(t, err)
-	expectedResourceUrl := "/nidp/jsp/content.jsp?sid=0&option=credential&id=AWS"
+	expectedResourceUrl := "/nidp/jsp/content.jsp?sid=0&option=credential&id=AlibabaCloud"
 
 	//when
 	getToContentDoc, err := goquery.NewDocumentFromReader(bytes.NewReader(getToContentData))

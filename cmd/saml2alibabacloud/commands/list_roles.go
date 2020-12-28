@@ -6,11 +6,11 @@ import (
 	"log"
 	"os"
 
+	saml2alibabacloud "github.com/aliyun/saml2alibabacloud"
+	"github.com/aliyun/saml2alibabacloud/helper/credentials"
+	"github.com/aliyun/saml2alibabacloud/pkg/flags"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"github.com/versent/saml2aws/v2"
-	"github.com/versent/saml2aws/v2/helper/credentials"
-	"github.com/versent/saml2aws/v2/pkg/flags"
 )
 
 // ListRoles will list available role ARNs
@@ -36,7 +36,7 @@ func ListRoles(loginFlags *flags.LoginExecFlags) error {
 
 	logger.WithField("idpAccount", account).Debug("building provider")
 
-	provider, err := saml2aws.NewSAMLClient(account)
+	provider, err := saml2alibabacloud.NewSAMLClient(account)
 	if err != nil {
 		return errors.Wrap(err, "error building IdP client")
 	}
@@ -50,7 +50,7 @@ func ListRoles(loginFlags *flags.LoginExecFlags) error {
 	if samlAssertion == "" {
 		log.Println("Response did not contain a valid SAML assertion")
 		log.Println("Please check your username and password is correct")
-		log.Println("To see the output follow the instructions in https://github.com/versent/saml2aws#debugging-issues-with-idps")
+		log.Println("To see the output follow the instructions in https://github.com/aliyun/saml2alibabacloud#debugging-issues-with-idps")
 		os.Exit(1)
 	}
 
@@ -66,9 +66,9 @@ func ListRoles(loginFlags *flags.LoginExecFlags) error {
 		return errors.Wrap(err, "error decoding saml assertion")
 	}
 
-	roles, err := saml2aws.ExtractAwsRoles(data)
+	roles, err := saml2alibabacloud.ExtractRamRoles(data)
 	if err != nil {
-		return errors.Wrap(err, "error parsing aws roles")
+		return errors.Wrap(err, "error parsing AlibabaCloud roles")
 	}
 
 	if len(roles) == 0 {
@@ -76,25 +76,25 @@ func ListRoles(loginFlags *flags.LoginExecFlags) error {
 		os.Exit(1)
 	}
 
-	awsRoles, err := saml2aws.ParseAWSRoles(roles)
+	alibabacloudRoles, err := saml2alibabacloud.ParseRamRoles(roles)
 	if err != nil {
-		return errors.Wrap(err, "error parsing aws roles")
+		return errors.Wrap(err, "error parsing AlibabaCloud roles")
 	}
 
-	if err := listRoles(awsRoles, samlAssertion, loginFlags); err != nil {
+	if err := listRoles(alibabacloudRoles, samlAssertion, loginFlags); err != nil {
 		return errors.Wrap(err, "Failed to list roles")
 	}
 
 	return nil
 }
 
-func listRoles(awsRoles []*saml2aws.AWSRole, samlAssertion string, loginFlags *flags.LoginExecFlags) error {
-	if len(awsRoles) == 1 {
+func listRoles(alibabacloudRoles []*saml2alibabacloud.RamRole, samlAssertion string, loginFlags *flags.LoginExecFlags) error {
+	if len(alibabacloudRoles) == 1 {
 		log.Println("")
 		log.Println("Only one role to assume. Will be automatically assumed on login")
-		log.Println(awsRoles[0].RoleARN)
+		log.Println(alibabacloudRoles[0].RoleARN)
 		return nil
-	} else if len(awsRoles) == 0 {
+	} else if len(alibabacloudRoles) == 0 {
 		return errors.New("no roles available")
 	}
 
@@ -103,20 +103,20 @@ func listRoles(awsRoles []*saml2aws.AWSRole, samlAssertion string, loginFlags *f
 		return errors.Wrap(err, "error decoding saml assertion")
 	}
 
-	aud, err := saml2aws.ExtractDestinationURL(samlAssertionData)
+	aud, err := saml2alibabacloud.ExtractDestinationURL(samlAssertionData)
 	if err != nil {
 		return errors.Wrap(err, "error parsing destination url")
 	}
 
-	awsAccounts, err := saml2aws.ParseAWSAccounts(aud, samlAssertion)
+	alibabacloudAccounts, err := saml2alibabacloud.ParseAlibabaCloudAccounts(aud, samlAssertion)
 	if err != nil {
-		return errors.Wrap(err, "error parsing aws role accounts")
+		return errors.Wrap(err, "error parsing AlibabaCloud role accounts")
 	}
 
-	saml2aws.AssignPrincipals(awsRoles, awsAccounts)
+	saml2alibabacloud.AssignPrincipals(alibabacloudRoles, alibabacloudAccounts)
 
 	log.Println("")
-	for _, account := range awsAccounts {
+	for _, account := range alibabacloudAccounts {
 		fmt.Println(account.Name)
 		for _, role := range account.Roles {
 			fmt.Println(role.RoleARN)

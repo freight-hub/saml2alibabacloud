@@ -1,6 +1,6 @@
 Set-StrictMode -Version 'Latest'
 
-#$nameOfApp = 'saml2aws'
+#$nameOfApp = 'saml2alibabacloud'
 $version = ${env:APPVEYOR_REPO_TAG_NAME}.Split('v')[1]
 
 task 'Compile Go libraries...' {

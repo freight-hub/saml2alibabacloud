@@ -1,27 +1,29 @@
-package saml2aws
+package saml2alibabacloud
 
 import (
 	"fmt"
-	"github.com/versent/saml2aws/v2/pkg/provider/netiq"
 	"sort"
 
-	"github.com/versent/saml2aws/v2/pkg/cfg"
-	"github.com/versent/saml2aws/v2/pkg/creds"
-	"github.com/versent/saml2aws/v2/pkg/provider/aad"
-	"github.com/versent/saml2aws/v2/pkg/provider/adfs"
-	"github.com/versent/saml2aws/v2/pkg/provider/adfs2"
-	"github.com/versent/saml2aws/v2/pkg/provider/akamai"
-	"github.com/versent/saml2aws/v2/pkg/provider/f5apm"
-	"github.com/versent/saml2aws/v2/pkg/provider/googleapps"
-	"github.com/versent/saml2aws/v2/pkg/provider/jumpcloud"
-	"github.com/versent/saml2aws/v2/pkg/provider/keycloak"
-	"github.com/versent/saml2aws/v2/pkg/provider/okta"
-	"github.com/versent/saml2aws/v2/pkg/provider/onelogin"
-	"github.com/versent/saml2aws/v2/pkg/provider/pingfed"
-	"github.com/versent/saml2aws/v2/pkg/provider/pingone"
-	"github.com/versent/saml2aws/v2/pkg/provider/shell"
-	"github.com/versent/saml2aws/v2/pkg/provider/shibboleth"
-	"github.com/versent/saml2aws/v2/pkg/provider/shibbolethecp"
+	"github.com/aliyun/saml2alibabacloud/pkg/provider/custom"
+	"github.com/aliyun/saml2alibabacloud/pkg/provider/netiq"
+
+	"github.com/aliyun/saml2alibabacloud/pkg/cfg"
+	"github.com/aliyun/saml2alibabacloud/pkg/creds"
+	"github.com/aliyun/saml2alibabacloud/pkg/provider/aad"
+	"github.com/aliyun/saml2alibabacloud/pkg/provider/adfs"
+	"github.com/aliyun/saml2alibabacloud/pkg/provider/adfs2"
+	"github.com/aliyun/saml2alibabacloud/pkg/provider/akamai"
+	"github.com/aliyun/saml2alibabacloud/pkg/provider/f5apm"
+	"github.com/aliyun/saml2alibabacloud/pkg/provider/googleapps"
+	"github.com/aliyun/saml2alibabacloud/pkg/provider/jumpcloud"
+	"github.com/aliyun/saml2alibabacloud/pkg/provider/keycloak"
+	"github.com/aliyun/saml2alibabacloud/pkg/provider/okta"
+	"github.com/aliyun/saml2alibabacloud/pkg/provider/onelogin"
+	"github.com/aliyun/saml2alibabacloud/pkg/provider/pingfed"
+	"github.com/aliyun/saml2alibabacloud/pkg/provider/pingone"
+	"github.com/aliyun/saml2alibabacloud/pkg/provider/shell"
+	"github.com/aliyun/saml2alibabacloud/pkg/provider/shibboleth"
+	"github.com/aliyun/saml2alibabacloud/pkg/provider/shibbolethecp"
 )
 
 // ProviderList list of providers with their MFAs
@@ -44,6 +46,7 @@ var MFAsByProvider = ProviderList{
 	"Akamai":        []string{"Auto", "DUO", "SMS", "EMAIL", "TOTP"},
 	"ShibbolethECP": []string{"auto", "phone", "push", "passcode"},
 	"NetIQ":         []string{"Auto", "Privileged"},
+	"Custom":        []string{"Auto"},
 }
 
 // Names get a list of provider names
@@ -166,6 +169,8 @@ func NewSAMLClient(idpAccount *cfg.IDPAccount) (SAMLClient, error) {
 			return nil, fmt.Errorf("Invalid MFA type: %v for %v provider", idpAccount.MFA, idpAccount.Provider)
 		}
 		return netiq.New(idpAccount, idpAccount.MFA)
+	case "Custom":
+		return custom.New(idpAccount)
 	default:
 		return nil, fmt.Errorf("Invalid provider: %v", idpAccount.Provider)
 	}

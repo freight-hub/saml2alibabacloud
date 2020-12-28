@@ -16,14 +16,14 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/aliyun/saml2alibabacloud/pkg/cfg"
+	"github.com/aliyun/saml2alibabacloud/pkg/creds"
+	"github.com/aliyun/saml2alibabacloud/pkg/page"
+	"github.com/aliyun/saml2alibabacloud/pkg/prompter"
+	"github.com/aliyun/saml2alibabacloud/pkg/provider"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
-	"github.com/versent/saml2aws/v2/pkg/cfg"
-	"github.com/versent/saml2aws/v2/pkg/creds"
-	"github.com/versent/saml2aws/v2/pkg/page"
-	"github.com/versent/saml2aws/v2/pkg/prompter"
-	"github.com/versent/saml2aws/v2/pkg/provider"
 )
 
 const (
@@ -177,8 +177,8 @@ func (oc *Client) follow(ctx context.Context, req *http.Request, loginDetails *c
 
 	var handler func(context.Context, *goquery.Document) (context.Context, *http.Request, error)
 
-	if docIsFormRedirectToAWS(doc) {
-		logger.WithField("type", "saml-response-to-aws").Debug("doc detect")
+	if docIsFormRedirectToAlibabaCloud(doc) {
+		logger.WithField("type", "saml-response").Debug("doc detect")
 		if samlResponse, ok := extractSAMLResponse(doc); ok {
 			decodedSamlResponse, err := base64.StdEncoding.DecodeString(samlResponse)
 			if err != nil {
@@ -267,10 +267,9 @@ func docIsFormResume(doc *goquery.Document) bool {
 	return doc.Find("input[name=\"RelayState\"]").Size() == 1
 }
 
-func docIsFormRedirectToAWS(doc *goquery.Document) bool {
-	urls := []string{"form[action=\"https://signin.aws.amazon.com/saml\"]",
-		"form[action=\"https://signin.amazonaws-us-gov.com/saml\"]",
-		"form[action=\"https://signin.amazonaws.cn/saml\"]",
+func docIsFormRedirectToAlibabaCloud(doc *goquery.Document) bool {
+	urls := []string{"form[action=\"https://signin.aliyun.com/saml-role/sso\"]",
+		"form[action=\"https://signin.alibabacloud.com/saml-role/sso\"]",
 	}
 
 	for _, value := range urls {
@@ -438,7 +437,7 @@ func verifyMfa(oc *Client, oktaOrgHost string, loginDetails *creds.LoginDetails,
 
 			default:
 				fmt.Printf(" Error\n")
-				return "", errors.New("Unsupported response from Okta, please raise ticket with saml2aws")
+				return "", errors.New("Unsupported response from Okta, please raise ticket with saml2alibabacloud")
 
 			}
 

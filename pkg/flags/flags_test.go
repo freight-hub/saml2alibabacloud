@@ -3,40 +3,40 @@ package flags
 import (
 	"testing"
 
+	"github.com/aliyun/saml2alibabacloud/pkg/cfg"
 	"github.com/stretchr/testify/assert"
-	"github.com/versent/saml2aws/v2/pkg/cfg"
 )
 
 func TestOverrideAllFlags(t *testing.T) {
 
 	commonFlags := &CommonFlags{
-		IdpProvider:          "ADFS",
-		MFA:                  "mymfa",
-		SkipVerify:           true,
-		URL:                  "https://id.example.com",
-		Username:             "myuser",
-		AmazonWebservicesURN: "urn:amazon:webservices",
-		SessionDuration:      3600,
-		Profile:              "saml",
+		IdpProvider:     "ADFS",
+		MFA:             "mymfa",
+		SkipVerify:      true,
+		URL:             "https://id.example.com",
+		Username:        "myuser",
+		AlibabaCloudURN: "urn:alibaba:cloudcomputing",
+		SessionDuration: 3600,
+		Profile:         "saml",
 	}
 	idpa := &cfg.IDPAccount{
-		Provider:             "Ping",
-		MFA:                  "none",
-		SkipVerify:           false,
-		URL:                  "https://id.test.com",
-		Username:             "test123",
-		AmazonWebservicesURN: "urn:amazon:webservices:govcloud",
+		Provider:        "Ping",
+		MFA:             "none",
+		SkipVerify:      false,
+		URL:             "https://id.test.com",
+		Username:        "test123",
+		AlibabaCloudURN: "urn:alibaba:cloudcomputing:govcloud",
 	}
 
 	expected := &cfg.IDPAccount{
-		Provider:             "ADFS",
-		MFA:                  "mymfa",
-		SkipVerify:           true,
-		URL:                  "https://id.example.com",
-		Username:             "myuser",
-		AmazonWebservicesURN: "urn:amazon:webservices",
-		SessionDuration:      3600,
-		Profile:              "saml",
+		Provider:        "ADFS",
+		MFA:             "mymfa",
+		SkipVerify:      true,
+		URL:             "https://id.example.com",
+		Username:        "myuser",
+		AlibabaCloudURN: "urn:alibaba:cloudcomputing",
+		SessionDuration: 3600,
+		Profile:         "saml",
 	}
 	ApplyFlagOverrides(commonFlags, idpa)
 
@@ -46,29 +46,29 @@ func TestOverrideAllFlags(t *testing.T) {
 func TestNoOverrides(t *testing.T) {
 
 	commonFlags := &CommonFlags{
-		IdpProvider:          "",
-		MFA:                  "",
-		SkipVerify:           false,
-		URL:                  "",
-		Username:             "",
-		AmazonWebservicesURN: "",
+		IdpProvider:     "",
+		MFA:             "",
+		SkipVerify:      false,
+		URL:             "",
+		Username:        "",
+		AlibabaCloudURN: "",
 	}
 	idpa := &cfg.IDPAccount{
-		Provider:             "Ping",
-		MFA:                  "none",
-		SkipVerify:           false,
-		URL:                  "https://id.test.com",
-		Username:             "test123",
-		AmazonWebservicesURN: "urn:amazon:webservices:govcloud",
+		Provider:        "Ping",
+		MFA:             "none",
+		SkipVerify:      false,
+		URL:             "https://id.test.com",
+		Username:        "test123",
+		AlibabaCloudURN: "urn:alibaba:cloudcomputing:govcloud",
 	}
 
 	expected := &cfg.IDPAccount{
-		Provider:             "Ping",
-		MFA:                  "none",
-		SkipVerify:           false,
-		URL:                  "https://id.test.com",
-		Username:             "test123",
-		AmazonWebservicesURN: "urn:amazon:webservices:govcloud",
+		Provider:        "Ping",
+		MFA:             "none",
+		SkipVerify:      false,
+		URL:             "https://id.test.com",
+		Username:        "test123",
+		AlibabaCloudURN: "urn:alibaba:cloudcomputing:govcloud",
 	}
 	ApplyFlagOverrides(commonFlags, idpa)
 
