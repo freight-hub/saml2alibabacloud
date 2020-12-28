@@ -468,5 +468,5 @@ DUMP_CONTENT=true saml2alibabacloud login --verbose
 
 # License
 
-This code is Copyright (c) 2018 [Versent](http://versent.com.au) and released under the MIT license. All rights not explicitly granted in the MIT license are reserved. See the included LICENSE.md file for more details.
+This code is released under the MIT license. All rights not explicitly granted in the MIT license are reserved. See the included LICENSE.md file for more details.
 
