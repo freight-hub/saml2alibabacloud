@@ -1,4 +1,4 @@
-# saml2alicloud [![GitHub Actions status](https://github.com/aliyun/saml2alibabacloud/workflows/Go/badge.svg?branch=master)](https://github.com/aliyun/saml2alibabacloud/actions?query=workflow%3AGo) [![Build status - Windows](https://ci.appveyor.com/api/projects/status/ptpi18kci16o4i82/branch/master?svg=true)](https://ci.appveyor.com/project/davidobrien1985/saml2aws/branch/master)
+# saml2alibabacloud [![GitHub Actions status](https://github.com/aliyun/saml2alibabacloud/workflows/Go/badge.svg?branch=master)](https://github.com/aliyun/saml2alibabacloud/actions?query=workflow%3AGo) [![Build status - Windows](https://ci.appveyor.com/api/projects/status/ptpi18kci16o4i82/branch/master?svg=true)](https://ci.appveyor.com/project/davidobrien1985/saml2aws/branch/master)
 
 CLI tool which enables you to login and retrieve [AlibabaCloud](https://www.aliyun.com/) temporary credentials using 
 with [ADFS](https://msdn.microsoft.com/en-us/library/bb897402.aspx) or [PingFederate](https://www.pingidentity.com/en/products/pingfederate.html) Identity Providers.
@@ -26,7 +26,7 @@ The process goes something like this:
     - [Linux](#linux)
 - [Dependency Setup](#dependency-setup)
 - [Usage](#usage)
-    - [`saml2alicloud script`](#saml2alibabacloud-script)
+    - [`saml2alibabacloud script`](#saml2alibabacloud-script)
     - [Configuring IDP Accounts](#configuring-idp-accounts)
 - [Example](#example)
 - [Advanced Configuration](#advanced-configuration)
@@ -392,7 +392,7 @@ region                           = cn-hangzhou
 ```
 ## Building
 
-To build this software on osx clone to the repo to `$GOPATH/src/github.com/daxingplay/saml2alicloud` and ensure you have `$GOPATH/bin` in your `$PATH`.
+To build this software on osx clone to the repo to `$GOPATH/src/github.com/aliyun/saml2alibabacloud` and ensure you have `$GOPATH/bin` in your `$PATH`.
 
 ```
 make mod
