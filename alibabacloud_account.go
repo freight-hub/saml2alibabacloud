@@ -1,14 +1,13 @@
 package saml2alibabacloud
 
 import (
-	"bytes"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
 
-	"github.com/PuerkitoBio/goquery"
 	"github.com/pkg/errors"
 )
 
@@ -16,6 +15,19 @@ import (
 type AlibabaCloudAccount struct {
 	Name  string
 	Roles []*RamRole
+}
+
+type RoleList struct {
+	AccountAliasList map[string]string `json:"AccountAliasList"`
+	RelayState       string            `json:"RelayState"`
+	SAMLResponse     string            `json:"SamlResponse"`
+	RoleInfoList     map[string][]struct {
+		AccountId   string `json:"accountId"`
+		ProviderArn string `json:"providerArn"`
+		Raw         string `json:"raw"`
+		RoleArn     string `json:"roleArn"`
+		RoleName    string `json:"roleName"`
+	}
 }
 
 // ParseAlibabaCloudAccounts extract the AlibabaCloud accounts from the saml assertion
@@ -37,30 +49,33 @@ func ParseAlibabaCloudAccounts(audience string, samlAssertion string) ([]*Alibab
 func ExtractAlibabaCloudAccounts(data []byte) ([]*AlibabaCloudAccount, error) {
 	accounts := []*AlibabaCloudAccount{}
 
-	doc, err := goquery.NewDocumentFromReader(bytes.NewBuffer(data))
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to build document from response")
+	html := string(data)
+	if strings.Contains(html, "ROLE_SSO_PAGE:") {
+		startIndex := strings.Index(html, "ROLE_SSO_PAGE:") + len("ROLE_SSO_PAGE:") + 1
+		endIndex := startIndex + strings.Index(html[startIndex:], "\"}]}},") + 5
+		roleListJson := html[startIndex:endIndex]
+
+		var roleList RoleList
+		if err := json.Unmarshal([]byte(roleListJson), &roleList); err != nil {
+			return nil, errors.Wrap(err, "Role selection page response unmarshal error")
+		}
+
+		for accountId, accountRoleList := range roleList.RoleInfoList {
+			account := new(AlibabaCloudAccount)
+			account.Name = fmt.Sprintf("%s(%s)", roleList.AccountAliasList[accountId], accountId)
+			for _, roleInfo := range accountRoleList {
+				role := new(RamRole)
+				role.Name = roleInfo.RoleName
+				role.RoleARN = roleInfo.RoleArn
+				role.PrincipalARN = roleInfo.ProviderArn
+				account.Roles = append(account.Roles, role)
+			}
+			accounts = append(accounts, account)
+		}
+		return accounts, nil
 	}
 
-	doc.Find("#samlRoleForm > div.form-group > div.col-sm-4 > label").Each(func(i int, s *goquery.Selection) {
-		account := new(AlibabaCloudAccount)
-		name := s.Text()
-		parts := strings.Split(name, ":")
-		account.Name = strings.TrimSpace(parts[1])
-		s.Parent().Parent().Next().Find("input[name='roleAttribute']").Each(func(i int, s *goquery.Selection) {
-			role := new(RamRole)
-			label := s.Parent()
-			role.Name = strings.TrimSpace(label.Text())
-			value, _ := s.Attr("value")
-			parts = strings.Split(value, ",")
-			role.RoleARN = strings.TrimSpace(parts[0])
-			role.PrincipalARN = strings.TrimSpace(parts[1])
-			account.Roles = append(account.Roles, role)
-		})
-		accounts = append(accounts, account)
-	})
-
-	return accounts, nil
+	return nil, errors.New("cannot find any roles")
 }
 
 // AssignPrincipals assign principal from roles
@@ -87,5 +102,5 @@ func LocateRole(ramRoles []*RamRole, roleName string) (*RamRole, error) {
 		}
 	}
 
-	return nil, fmt.Errorf("Supplied RoleArn not found in saml assertion: %s", roleName)
+	return nil, fmt.Errorf("supplied `RoleArn` not found in saml assertion: %s", roleName)
 }

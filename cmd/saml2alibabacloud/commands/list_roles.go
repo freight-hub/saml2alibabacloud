@@ -44,7 +44,6 @@ func ListRoles(loginFlags *flags.LoginExecFlags) error {
 	samlAssertion, err := provider.Authenticate(loginDetails)
 	if err != nil {
 		return errors.Wrap(err, "error authenticating to IdP")
-
 	}
 
 	if samlAssertion == "" {

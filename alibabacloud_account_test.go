@@ -16,7 +16,7 @@ func TestExtractAlibabaCloudAccounts(t *testing.T) {
 	assert.Len(t, accounts, 2)
 
 	account := accounts[0]
-	assert.Equal(t, account.Name, "Account: account-alias (000000000001)")
+	assert.Equal(t, account.Name, "000000000001(000000000001)")
 
 	assert.Len(t, account.Roles, 2)
 	role := account.Roles[0]
@@ -27,10 +27,13 @@ func TestExtractAlibabaCloudAccounts(t *testing.T) {
 	assert.Equal(t, role.Name, "Production")
 
 	account = accounts[1]
-	assert.Equal(t, account.Name, "Account: 000000000002")
+	assert.Equal(t, account.Name, "sharedservices(000000000002)")
 
-	assert.Len(t, account.Roles, 1)
+	assert.Len(t, account.Roles, 2)
 	role = account.Roles[0]
+	assert.Equal(t, role.RoleARN, "acs:ram::000000000002:role/Development")
+	assert.Equal(t, role.Name, "Development")
+	role = account.Roles[1]
 	assert.Equal(t, role.RoleARN, "acs:ram::000000000002:role/Production")
 	assert.Equal(t, role.Name, "Production")
 }

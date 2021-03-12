@@ -32,7 +32,7 @@ func parseRole(role string) (*RamRole, error) {
 	tokens := strings.Split(role, ",")
 
 	if len(tokens) != 2 {
-		return nil, fmt.Errorf("Invalid role string only %d tokens", len(tokens))
+		return nil, fmt.Errorf("invalid role string only %d tokens", len(tokens))
 	}
 
 	ramRole := &RamRole{}
@@ -47,11 +47,11 @@ func parseRole(role string) (*RamRole, error) {
 	}
 
 	if ramRole.PrincipalARN == "" {
-		return nil, fmt.Errorf("Unable to locate PrincipalARN in: %s", role)
+		return nil, fmt.Errorf("unable to locate `PrincipalARN` in: %s", role)
 	}
 
 	if ramRole.RoleARN == "" {
-		return nil, fmt.Errorf("Unable to locate RoleARN in: %s", role)
+		return nil, fmt.Errorf("unable to locate `RoleARN` in: %s", role)
 	}
 
 	return ramRole, nil

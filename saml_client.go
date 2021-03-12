@@ -94,84 +94,84 @@ func NewSAMLClient(idpAccount *cfg.IDPAccount) (SAMLClient, error) {
 	switch idpAccount.Provider {
 	case "AzureAD":
 		if invalidMFA(idpAccount.Provider, idpAccount.MFA) {
-			return nil, fmt.Errorf("Invalid MFA type: %v for %v provider", idpAccount.MFA, idpAccount.Provider)
+			return nil, fmt.Errorf("invalid MFA type: %v for %v provider", idpAccount.MFA, idpAccount.Provider)
 		}
 		return aad.New(idpAccount)
 	case "ADFS":
 		if invalidMFA(idpAccount.Provider, idpAccount.MFA) {
-			return nil, fmt.Errorf("Invalid MFA type: %v for %v provider", idpAccount.MFA, idpAccount.Provider)
+			return nil, fmt.Errorf("invalid MFA type: %v for %v provider", idpAccount.MFA, idpAccount.Provider)
 		}
 		return adfs.New(idpAccount)
 	case "ADFS2":
 		if invalidMFA(idpAccount.Provider, idpAccount.MFA) {
-			return nil, fmt.Errorf("Invalid MFA type: %v for %v provider", idpAccount.MFA, idpAccount.Provider)
+			return nil, fmt.Errorf("invalid MFA type: %v for %v provider", idpAccount.MFA, idpAccount.Provider)
 		}
 		return adfs2.New(idpAccount)
 	case "Ping":
 		if invalidMFA(idpAccount.Provider, idpAccount.MFA) {
-			return nil, fmt.Errorf("Invalid MFA type: %v for %v provider", idpAccount.MFA, idpAccount.Provider)
+			return nil, fmt.Errorf("invalid MFA type: %v for %v provider", idpAccount.MFA, idpAccount.Provider)
 		}
 		return pingfed.New(idpAccount)
 	case "PingOne":
 		if invalidMFA(idpAccount.Provider, idpAccount.MFA) {
-			return nil, fmt.Errorf("Invalid MFA type: %v for %v provider", idpAccount.MFA, idpAccount.Provider)
+			return nil, fmt.Errorf("invalid MFA type: %v for %v provider", idpAccount.MFA, idpAccount.Provider)
 		}
 		return pingone.New(idpAccount)
 	case "JumpCloud":
 		if invalidMFA(idpAccount.Provider, idpAccount.MFA) {
-			return nil, fmt.Errorf("Invalid MFA type: %v for %v provider", idpAccount.MFA, idpAccount.Provider)
+			return nil, fmt.Errorf("invalid MFA type: %v for %v provider", idpAccount.MFA, idpAccount.Provider)
 		}
 		return jumpcloud.New(idpAccount)
 	case "Okta":
 		if invalidMFA(idpAccount.Provider, idpAccount.MFA) {
-			return nil, fmt.Errorf("Invalid MFA type: %v for %v provider", idpAccount.MFA, idpAccount.Provider)
+			return nil, fmt.Errorf("invalid MFA type: %v for %v provider", idpAccount.MFA, idpAccount.Provider)
 		}
 		return okta.New(idpAccount)
 	case "OneLogin":
 		if invalidMFA(idpAccount.Provider, idpAccount.MFA) {
-			return nil, fmt.Errorf("Invalid MFA type: %v for %v provider", idpAccount.MFA, idpAccount.Provider)
+			return nil, fmt.Errorf("invalid MFA type: %v for %v provider", idpAccount.MFA, idpAccount.Provider)
 		}
 		return onelogin.New(idpAccount)
 	case "KeyCloak":
 		if invalidMFA(idpAccount.Provider, idpAccount.MFA) {
-			return nil, fmt.Errorf("Invalid MFA type: %v for %v provider", idpAccount.MFA, idpAccount.Provider)
+			return nil, fmt.Errorf("invalid MFA type: %v for %v provider", idpAccount.MFA, idpAccount.Provider)
 		}
 		return keycloak.New(idpAccount)
 	case "GoogleApps":
 		if invalidMFA(idpAccount.Provider, idpAccount.MFA) {
-			return nil, fmt.Errorf("Invalid MFA type: %v for %v provider", idpAccount.MFA, idpAccount.Provider)
+			return nil, fmt.Errorf("invalid MFA type: %v for %v provider", idpAccount.MFA, idpAccount.Provider)
 		}
 		return googleapps.New(idpAccount)
 	case "Shibboleth":
 		if invalidMFA(idpAccount.Provider, idpAccount.MFA) {
-			return nil, fmt.Errorf("Invalid MFA type: %v for %v provider", idpAccount.MFA, idpAccount.Provider)
+			return nil, fmt.Errorf("invalid MFA type: %v for %v provider", idpAccount.MFA, idpAccount.Provider)
 		}
 		return shibboleth.New(idpAccount)
 	case "ShibbolethECP":
 		if invalidMFA(idpAccount.Provider, idpAccount.MFA) {
-			return nil, fmt.Errorf("Invalid MFA type: %v for %v provider", idpAccount.MFA, idpAccount.Provider)
+			return nil, fmt.Errorf("invalid MFA type: %v for %v provider", idpAccount.MFA, idpAccount.Provider)
 		}
 		return shibbolethecp.New(idpAccount)
 	case "F5APM":
 		if invalidMFA(idpAccount.Provider, idpAccount.MFA) {
-			return nil, fmt.Errorf("Invalid MFA type: %v for %v provider", idpAccount.MFA, idpAccount.Provider)
+			return nil, fmt.Errorf("invalid MFA type: %v for %v provider", idpAccount.MFA, idpAccount.Provider)
 		}
 		return f5apm.New(idpAccount)
 	case "Akamai":
 		if invalidMFA(idpAccount.Provider, idpAccount.MFA) {
-			return nil, fmt.Errorf("Invalid MFA type: %v for %v provider", idpAccount.MFA, idpAccount.Provider)
+			return nil, fmt.Errorf("invalid MFA type: %v for %v provider", idpAccount.MFA, idpAccount.Provider)
 		}
 		return akamai.New(idpAccount)
 	case "Shell":
 		return shell.New(idpAccount)
 	case "NetIQ":
 		if invalidMFA(idpAccount.Provider, idpAccount.MFA) {
-			return nil, fmt.Errorf("Invalid MFA type: %v for %v provider", idpAccount.MFA, idpAccount.Provider)
+			return nil, fmt.Errorf("invalid MFA type: %v for %v provider", idpAccount.MFA, idpAccount.Provider)
 		}
 		return netiq.New(idpAccount, idpAccount.MFA)
 	case "Custom":
 		return custom.New(idpAccount)
 	default:
-		return nil, fmt.Errorf("Invalid provider: %v", idpAccount.Provider)
+		return nil, fmt.Errorf("invalid provider: %v", idpAccount.Provider)
 	}
 }
