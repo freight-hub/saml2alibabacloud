@@ -19,7 +19,10 @@ import (
 	"github.com/aliyun/saml2alibabacloud/pkg/prompter"
 	"github.com/aliyun/saml2alibabacloud/pkg/provider"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 )
+
+var logger = logrus.WithField("provider", "aad")
 
 // Client wrapper around AzureAD enabling authentication and retrieval of assertions
 type Client struct {
@@ -635,6 +638,7 @@ func (ac *Client) Authenticate(loginDetails *creds.LoginDetails) (string, error)
 
 	// startSAML
 	startURL := fmt.Sprintf("%s/applications/redirecttofederatedapplication.aspx?Operation=LinkedSignIn&applicationId=%s", ac.idpAccount.URL, ac.idpAccount.AppID)
+	logger.Debugf("start url: %s", startURL)
 
 	res, err := ac.client.Get(startURL)
 	if err != nil {
@@ -687,6 +691,7 @@ func (ac *Client) Authenticate(loginDetails *creds.LoginDetails) (string, error)
 
 	// require reprocess
 	if strings.Contains(resBodyStr, "<form") {
+		logger.Debug("require reprocess")
 		res, err = ac.reProcess(resBodyStr)
 		if err != nil {
 			return samlAssertion, errors.Wrap(err, "error retrieving login reprocess results")
@@ -703,6 +708,9 @@ func (ac *Client) Authenticate(loginDetails *creds.LoginDetails) (string, error)
 		endIndex := startIndex + strings.Index(resBodyStr[startIndex:], ";")
 		loginPasswordJson = resBodyStr[startIndex:endIndex]
 	}
+
+	logger.Debugf("login password json is: %s", loginPasswordJson)
+
 	var loginPasswordResp passwordLoginResponse
 	var loginPasswordSkipMfaResp SkipMfaResponse
 
@@ -715,6 +723,11 @@ func (ac *Client) Authenticate(loginDetails *creds.LoginDetails) (string, error)
 	var restartSAMLResp startSAMLResponse
 	if err := json.Unmarshal([]byte(loginPasswordJson), &restartSAMLResp); err != nil {
 		return samlAssertion, errors.Wrap(err, "startSAML response unmarshal error")
+	}
+
+	if restartSAMLResp.SErrorCode != "" {
+		logger.Debugf("Login error with code: %s, %s", restartSAMLResp.SErrorCode, restartSAMLResp.SErrTxt)
+		return samlAssertion, fmt.Errorf("Login error, code: %s, please refer to https://login.microsoftonline.com/error?code=%s for more details", restartSAMLResp.SErrorCode, restartSAMLResp.SErrorCode)
 	}
 
 	mfas := loginPasswordResp.ArrUserProofs
@@ -885,6 +898,7 @@ func (ac *Client) Authenticate(loginDetails *creds.LoginDetails) (string, error)
 		// This can happen if MFA is enabled, but we're accessing from a MFA trusted IP
 		// See https://docs.microsoft.com/en-us/azure/active-directory/authentication/howto-mfa-mfasettings#targetText=MFA%20service%20settings,-Settings%20for%20app&targetText=Service%20settings%20can%20be%20accessed,Additional%20cloud-based%20MFA%20settings.
 		// Proceed with login as normal
+		logger.Debug("Proceed with login as normal")
 	}
 
 	// If we've been prompted with KMSI despite not going via MFA flow
@@ -940,7 +954,14 @@ func (ac *Client) Authenticate(loginDetails *creds.LoginDetails) (string, error)
 	})
 
 	if authSubmitURL == "" {
-		return samlAssertion, fmt.Errorf("unable to locate IDP oidc form submit URL")
+		var getAuthSubmitURLError string
+		sel := doc.Find("#RedirectErrorLabel")
+		if sel.Index() != -1 {
+			getAuthSubmitURLError = fmt.Sprintf(", error: %s", sel.Text())
+		} else if loginPasswordResp.Pgid == "ConvergedChangePassword" {
+			return samlAssertion, fmt.Errorf("you might need to update your password")
+		}
+		return samlAssertion, fmt.Errorf("unable to locate IDP oidc form submit URL%s", getAuthSubmitURLError)
 	}
 
 	req, err := http.NewRequest("POST", authSubmitURL, strings.NewReader(authForm.Encode()))
@@ -980,7 +1001,14 @@ func (ac *Client) Authenticate(loginDetails *creds.LoginDetails) (string, error)
 
 	}
 	if SAMLRequestURL == "" {
-		return samlAssertion, fmt.Errorf("unable to locate SAMLRequest URL")
+		var errorMessage string
+		if strings.Contains(oidcResponseStr, "RedirectErrorLabel") {
+			startIndex := strings.Index(oidcResponseStr, "RedirectErrorLabel")
+			startIndex = startIndex + strings.Index(oidcResponseStr[startIndex:], ">") + 1
+			endIndex := startIndex + strings.Index(oidcResponseStr[startIndex:], "</span>")
+			errorMessage = fmt.Sprintf(". Error is: %s", oidcResponseStr[startIndex:endIndex])
+		}
+		return samlAssertion, fmt.Errorf("unable to locate SAMLRequest URL%s", errorMessage)
 	}
 
 	req, err = http.NewRequest("GET", SAMLRequestURL, nil)
