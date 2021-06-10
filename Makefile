@@ -1,6 +1,6 @@
 NAME=saml2alibabacloud
 ARCH=$(shell uname -m)
-VERSION=0.0.1
+VERSION=0.0.3
 ITERATION := 1
 
 SOURCE_FILES?=$$(go list ./... | grep -v /vendor/)

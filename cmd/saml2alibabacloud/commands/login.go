@@ -252,6 +252,10 @@ func resolveRole(alibabacloudRoles []*saml2alibabacloud.RamRole, samlAssertion s
 func loginToStsUsingRole(account *cfg.IDPAccount, role *saml2alibabacloud.RamRole, samlAssertion string) (*alibabacloudconfig.AliCloudCredentials, error) {
 
 	client, err := sts.NewClientWithAccessKey("cn-hangzhou", "a", "b")
+	if err != nil {
+		return nil, err
+	}
+	client.AppendUserAgent("saml2alibabacloud", "0.0.3")
 
 	request := sts.CreateAssumeRoleWithSAMLRequest()
 	request.Scheme = "https"
