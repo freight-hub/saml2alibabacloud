@@ -139,7 +139,7 @@ func (p *CredentialsProvider) ensureConfigExists() error {
 			logger.WithField("dir", dir).Debug("Dir created")
 
 			// create an base config file
-			err = ioutil.WriteFile(filename, []byte("["+p.Profile+"]"), 0600)
+			err = ioutil.WriteFile(filename, []byte("{}"), 0600)
 			if err != nil {
 				return err
 			}
