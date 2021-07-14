@@ -98,7 +98,7 @@ func assumeRoleWithProfile(alibabacloudCreds *alibabacloudconfig.AliCloudCredent
 	if err != nil {
 		return nil, err
 	}
-	client.AppendUserAgent("saml2alibabacloud", "0.0.3")
+	client.AppendUserAgent("saml2alibabacloud", "0.0.5")
 	request := sts.CreateAssumeRoleRequest()
 	request.RoleSessionName = targetCreds.AliCloudSessionToken
 	request.RoleArn = targetCreds.PrincipalARN
@@ -126,7 +126,7 @@ func checkToken(alibabacloudCreds *alibabacloudconfig.AliCloudCredentials) (bool
 		return false, err
 	}
 
-	client.AppendUserAgent("saml2alibabacloud", "0.0.3")
+	client.AppendUserAgent("saml2alibabacloud", "0.0.5")
 
 	request := sts.CreateGetCallerIdentityRequest()
 
