@@ -28,23 +28,6 @@ func Login(loginFlags *flags.LoginExecFlags) error {
 
 	sharedCreds := alibabacloudconfig.NewSharedCredentials(account.Profile)
 
-	logger.Debug("check if Creds Exist")
-
-	// this checks if the credentials file has been created yet
-	exist, err := sharedCreds.CredsExists()
-	if err != nil {
-		return errors.Wrap(err, "error loading credentials")
-	}
-	if !exist {
-		log.Println("unable to load credentials, login required to create them")
-		return nil
-	}
-
-	if !sharedCreds.Expired() && !loginFlags.Force {
-		log.Println("credentials are not expired skipping")
-		return nil
-	}
-
 	loginDetails, err := resolveLoginDetails(account, loginFlags)
 	if err != nil {
 		log.Printf("%+v", err)
@@ -251,11 +234,11 @@ func resolveRole(alibabacloudRoles []*saml2alibabacloud.RamRole, samlAssertion s
 
 func loginToStsUsingRole(account *cfg.IDPAccount, role *saml2alibabacloud.RamRole, samlAssertion string) (*alibabacloudconfig.AliCloudCredentials, error) {
 
-	client, err := sts.NewClientWithAccessKey("cn-hangzhou", "a", "b")
+	client, err := sts.NewClientWithAccessKey("cn-hangzhou", "saml2alibabacloud", "0.0.5")
 	if err != nil {
 		return nil, err
 	}
-	client.AppendUserAgent("saml2alibabacloud", "0.0.3")
+	client.AppendUserAgent("saml2alibabacloud", "0.0.5")
 
 	request := sts.CreateAssumeRoleWithSAMLRequest()
 	request.Scheme = "https"
